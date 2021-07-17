@@ -28,24 +28,24 @@ public:
   G3KHTargetInfo(const llvm::Triple &Triple, const TargetOptions &)
       : TargetInfo(Triple) {
     TLSSupported = false;
-    IntWidth = 16;
-    IntAlign = 16;
+    IntWidth = 32;
+    IntAlign = 32;
     LongWidth = 32;
     LongLongWidth = 64;
-    LongAlign = LongLongAlign = 16;
+    LongAlign = LongLongAlign = 32;
     FloatWidth = 32;
-    FloatAlign = 16;
+    FloatAlign = 32;
     DoubleWidth = LongDoubleWidth = 64;
-    DoubleAlign = LongDoubleAlign = 16;
-    PointerWidth = 16;
-    PointerAlign = 16;
-    SuitableAlign = 16;
+    DoubleAlign = LongDoubleAlign = 32;
+    PointerWidth = 32;
+    PointerAlign = 32;
+    SuitableAlign = 32;
     SizeType = UnsignedInt;
     IntMaxType = SignedLongLong;
     IntPtrType = SignedInt;
     PtrDiffType = SignedInt;
     SigAtomicType = SignedLong;
-    resetDataLayout("e-m:e-p:16:16-i32:16-i64:16-f32:16-f64:16-a:8-n8:16-S16");
+    resetDataLayout("e-m:e-p:32:32-i32:32-i64:32-f32:32-f64:32-a:8-n8:16:32-S32");
   }
   void getTargetDefines(const LangOptions &Opts,
                         MacroBuilder &Builder) const override;

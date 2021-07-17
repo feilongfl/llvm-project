@@ -34,7 +34,7 @@ static Reloc::Model getEffectiveRelocModel(Optional<Reloc::Model> RM) {
 
 static std::string computeDataLayout(const Triple &TT, StringRef CPU,
                                      const TargetOptions &Options) {
-  return "e-m:e-p:16:16-i32:16-i64:16-f32:16-f64:16-a:8-n8:16-S16";
+  return "e-m:e-p:32:32-i32:32-i64:32-f32:32-f64:32-a:8-n8:16:32-S32";
 }
 
 G3KHTargetMachine::G3KHTargetMachine(const Target &T, const Triple &TT,
