@@ -50,6 +50,7 @@ StringRef Triple::getArchTypeName(ArchType Kind) {
   case mips:           return "mips";
   case mipsel:         return "mipsel";
   case msp430:         return "msp430";
+  case g3kh:         return "g3kh";
   case nvptx64:        return "nvptx64";
   case nvptx:          return "nvptx";
   case ppc64:          return "powerpc64";
@@ -426,6 +427,7 @@ static Triple::ArchType parseArch(StringRef ArchName) {
     .Case("avr", Triple::avr)
     .Case("m68k", Triple::m68k)
     .Case("msp430", Triple::msp430)
+    .Case("g3kh", Triple::g3kh)
     .Cases("mips", "mipseb", "mipsallegrex", "mipsisa32r6",
            "mipsr6", Triple::mips)
     .Cases("mipsel", "mipsallegrexel", "mipsisa32r6el", "mipsr6el",
@@ -717,6 +719,7 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::mips:
   case Triple::mipsel:
   case Triple::msp430:
+  case Triple::g3kh:
   case Triple::nvptx64:
   case Triple::nvptx:
   case Triple::ppc64le:
@@ -1274,6 +1277,7 @@ static unsigned getArchPointerBitWidth(llvm::Triple::ArchType Arch) {
   case llvm::Triple::msp430:
     return 16;
 
+  case llvm::Triple::g3kh:
   case llvm::Triple::aarch64_32:
   case llvm::Triple::amdil:
   case llvm::Triple::arc:
@@ -1359,6 +1363,7 @@ Triple Triple::get32BitArchVariant() const {
     T.setArch(UnknownArch);
     break;
 
+  case Triple::g3kh:
   case Triple::aarch64_32:
   case Triple::amdil:
   case Triple::arc:
@@ -1425,6 +1430,7 @@ Triple Triple::get64BitArchVariant() const {
   case Triple::lanai:
   case Triple::m68k:
   case Triple::msp430:
+  case Triple::g3kh:
   case Triple::r600:
   case Triple::shave:
   case Triple::sparcel:

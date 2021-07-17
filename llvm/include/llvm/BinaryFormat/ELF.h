@@ -320,6 +320,7 @@ enum {
   EM_BPF = 247,           // Linux kernel bpf virtual machine
   EM_VE = 251,            // NEC SX-Aurora VE
   EM_CSKY = 252,          // C-SKY 32-bit processor
+  EM_G3KH = 253,          // G3KH 32-bit processor
 };
 
 // Object file classes.
@@ -849,6 +850,11 @@ enum {
 #include "ELFRelocs/MSP430.def"
 };
 
+// ELF Relocation types for G3KH
+enum {
+#include "ELFRelocs/G3KH.def"
+};
+
 // ELF Relocation type for VE.
 enum {
 #include "ELFRelocs/VE.def"
@@ -971,6 +977,7 @@ enum : unsigned {
   SHT_MIPS_ABIFLAGS = 0x7000002a, // ABI information.
 
   SHT_MSP430_ATTRIBUTES = 0x70000003U,
+  SHT_G3KH_ATTRIBUTES = 0x70000003U,
 
   SHT_RISCV_ATTRIBUTES = 0x70000003U,
 

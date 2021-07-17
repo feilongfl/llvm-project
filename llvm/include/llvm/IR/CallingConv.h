@@ -252,6 +252,9 @@ namespace CallingConv {
     /// M68k_INTR - Calling convention used for M68k interrupt routines.
     M68k_INTR = 101,
 
+    //G3KH
+    G3KH_INTR = 1001,
+    G3KH_BUILTIN = 1002,
     /// The highest possible calling convention ID. Must be some 2^k - 1.
     MaxID = 1023
   };

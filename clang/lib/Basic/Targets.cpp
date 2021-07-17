@@ -19,6 +19,7 @@
 #include "Targets/ARM.h"
 #include "Targets/AVR.h"
 #include "Targets/BPF.h"
+#include "Targets/G3KH.h"
 #include "Targets/Hexagon.h"
 #include "Targets/Lanai.h"
 #include "Targets/Le64.h"
@@ -241,6 +242,8 @@ TargetInfo *AllocateTarget(const llvm::Triple &Triple,
 
   case llvm::Triple::msp430:
     return new MSP430TargetInfo(Triple, Opts);
+  case llvm::Triple::g3kh:
+    return new G3KHTargetInfo(Triple, Opts);
 
   case llvm::Triple::mips:
     switch (os) {
