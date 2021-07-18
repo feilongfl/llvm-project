@@ -10,20 +10,20 @@
 //  Declarations that describe the G3KH register file
 //===----------------------------------------------------------------------===//
 
-class G3KHReg<bits<4> num, string n, list<string> alt = []> : Register<n> {
-  field bits<4> Num = num;
+class G3KHReg<bits<5> num, string n, list<string> alt = []> : Register<n> {
+  field bits<5> Num = num;
   let Namespace = "G3KH";
-  let HWEncoding{3-0} = num;
+  let HWEncoding{4-0} = num;
   let AltNames = alt;
   let DwarfNumbers = [num];
 }
 
-class G3KHRegWithSubregs<bits<4> num, string n, list<Register> subregs,
+class G3KHRegWithSubregs<bits<5> num, string n, list<Register> subregs,
                            list<string> alt = []> 
   : RegisterWithSubRegs<n, subregs> {
-  field bits<4> Num = num;
+  field bits<5> Num = num;
   let Namespace = "G3KH";
-  let HWEncoding{3-0} = num;
+  let HWEncoding{4-0} = num;
   let AltNames = alt;
   let DwarfNumbers = [num];
 }
@@ -48,6 +48,22 @@ def R12B : G3KHReg<12, "r12">;
 def R13B : G3KHReg<13, "r13">;
 def R14B : G3KHReg<14, "r14">;
 def R15B : G3KHReg<15, "r15">;
+def R16B : G3KHReg<16, "r16">;
+def R17B : G3KHReg<17, "r17">;
+def R18B : G3KHReg<18, "r18">;
+def R19B : G3KHReg<19, "r19">;
+def R20B : G3KHReg<20, "r20">;
+def R21B : G3KHReg<21, "r21">;
+def R22B : G3KHReg<22, "r22">;
+def R23B : G3KHReg<23, "r23">;
+def R24B : G3KHReg<24, "r24">;
+def R25B : G3KHReg<25, "r25">;
+def R26B : G3KHReg<26, "r26">;
+def R27B : G3KHReg<27, "r27">;
+def R28B : G3KHReg<28, "r28">;
+def R29B : G3KHReg<29, "r29">;
+def R30B : G3KHReg<30, "r30">;
+def R31B : G3KHReg<31, "r31">;
 
 def subreg_8bit : SubRegIndex<8> { let Namespace = "G3KH"; }
 
@@ -68,6 +84,22 @@ def R12 : G3KHRegWithSubregs<12, "r12", [R12B]>;
 def R13 : G3KHRegWithSubregs<13, "r13", [R13B]>;
 def R14 : G3KHRegWithSubregs<14, "r14", [R14B]>;
 def R15 : G3KHRegWithSubregs<15, "r15", [R15B]>;
+def R16 : G3KHRegWithSubregs<16, "r16", [R16B]>;
+def R17 : G3KHRegWithSubregs<17, "r17", [R17B]>;
+def R18 : G3KHRegWithSubregs<18, "r18", [R18B]>;
+def R19 : G3KHRegWithSubregs<19, "r19", [R19B]>;
+def R20 : G3KHRegWithSubregs<20, "r20", [R20B]>;
+def R21 : G3KHRegWithSubregs<21, "r21", [R21B]>;
+def R22 : G3KHRegWithSubregs<22, "r22", [R22B]>;
+def R23 : G3KHRegWithSubregs<23, "r23", [R23B]>;
+def R24 : G3KHRegWithSubregs<24, "r24", [R24B]>;
+def R25 : G3KHRegWithSubregs<25, "r25", [R25B]>;
+def R26 : G3KHRegWithSubregs<26, "r26", [R26B]>;
+def R27 : G3KHRegWithSubregs<27, "r27", [R27B]>;
+def R28 : G3KHRegWithSubregs<28, "r28", [R28B]>;
+def R29 : G3KHRegWithSubregs<29, "r29", [R29B]>;
+def R30 : G3KHRegWithSubregs<30, "r30", [R30B]>;
+def R31 : G3KHRegWithSubregs<31, "r31", [R31B]>;
 }
 
 def GR8 : RegisterClass<"G3KH", [i8], 8,
@@ -85,3 +117,11 @@ def GR16 : RegisterClass<"G3KH", [i16], 16,
    R4,
    // Volatile, but not allocable
    PC, SP, SR, CG)>;
+
+// def GR32 : RegisterClass<"G3KH", [i32], 32,
+//    // Volatile registers
+//   (add R12, R13, R14, R15, R11, R10, R9, R8, R7, R6, R5,
+//    // Frame pointer, sometimes allocable
+//    R4,
+//    // Volatile, but not allocable
+//    PC, SP, SR, CG)>;

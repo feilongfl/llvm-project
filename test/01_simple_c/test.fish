@@ -2,7 +2,8 @@
 
 # ../../build/bin/clang -help
 # ../../build/bin/clang --print-multiarch
-../../build/bin/clang -print-targets
+# ../../build/bin/clang -print-targets
 # ../../build/bin/clang -print-supported-cpus 
 ../../build/bin/clang --target=g3kh main.c -emit-llvm -S -c -o ../../build/test/01_simple_c.ll
+../../build/bin/llc ../../build/test/01_simple_c.ll
 code ../../build/test/01_simple_c.ll

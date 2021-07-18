@@ -17,21 +17,21 @@ include "llvm/Target/Target.td"
 //===----------------------------------------------------------------------===//
 // Subtarget Features. 
 //===----------------------------------------------------------------------===//
-def FeatureX
- : SubtargetFeature<"ext", "ExtendedInsts", "true",
-                    "Enable G3KH-X extensions">;
+// def FeatureX
+//  : SubtargetFeature<"ext", "ExtendedInsts", "true",
+//                     "Enable G3KH-X extensions">;
 
-def FeatureHWMult16
- : SubtargetFeature<"hwmult16", "HWMultMode", "HWMult16",
-                    "Enable 16-bit hardware multiplier">;
+// def FeatureHWMult16
+//  : SubtargetFeature<"hwmult16", "HWMultMode", "HWMult16",
+//                     "Enable 16-bit hardware multiplier">;
 
-def FeatureHWMult32
- : SubtargetFeature<"hwmult32", "HWMultMode", "HWMult32",
-                    "Enable 32-bit hardware multiplier">;
+// def FeatureHWMult32
+//  : SubtargetFeature<"hwmult32", "HWMultMode", "HWMult32",
+//                     "Enable 32-bit hardware multiplier">;
 
-def FeatureHWMultF5
- : SubtargetFeature<"hwmultf5", "HWMultMode", "HWMultF5",
-                    "Enable F5 series hardware multiplier">;
+// def FeatureHWMultF5
+//  : SubtargetFeature<"hwmultf5", "HWMultMode", "HWMultF5",
+//                     "Enable F5 series hardware multiplier">;
 
 //===----------------------------------------------------------------------===//
 // G3KH supported processors.
@@ -41,7 +41,7 @@ class Proc<string Name, list<SubtargetFeature> Features>
 
 def : Proc<"generic",         []>;
 def : Proc<"g3kh",          []>;
-def : Proc<"g3khx",         [FeatureX]>;
+// def : Proc<"g3khx",         [FeatureX]>;
 
 //===----------------------------------------------------------------------===//
 // Register File Description

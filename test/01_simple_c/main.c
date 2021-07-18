@@ -1,3 +1,5 @@
-int main() {
-    return 0;
+void main() {
+    // int i = 0;
+
+    return;
 }
