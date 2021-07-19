@@ -1,5 +1,9 @@
+short test() {
+    return 0;
+}
+
 void main() {
-    // int i = 0;
+    test();
 
     return;
 }

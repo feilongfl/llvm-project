@@ -36,6 +36,8 @@ public:
 
 private:
   virtual void anchor();
+  bool FPURegister = false;
+  bool CacheRegister = false;
   bool ExtendedInsts = false;
   HWMultEnum HWMultMode = NoHWMult;
   G3KHFrameLowering FrameLowering;
