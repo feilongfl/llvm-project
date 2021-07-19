@@ -250,7 +250,7 @@ bool G3KHDAGToDAGISel::SelectAddr(SDValue N,
 
   if (AM.BaseType == G3KHISelAddressMode::RegBase)
     if (!AM.Base.Reg.getNode())
-      AM.Base.Reg = CurDAG->getRegister(G3KH::SR, MVT::i16);
+      AM.Base.Reg = CurDAG->getRegister(G3KH::TP, MVT::i16);
 
   Base = (AM.BaseType == G3KHISelAddressMode::FrameIndexBase)
              ? CurDAG->getTargetFrameIndex(

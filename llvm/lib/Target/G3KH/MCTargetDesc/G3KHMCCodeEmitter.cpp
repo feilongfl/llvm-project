@@ -62,7 +62,7 @@ class G3KHMCCodeEmitter : public MCCodeEmitter {
                               SmallVectorImpl<MCFixup> &Fixups,
                               const MCSubtargetInfo &STI) const;
 
-  unsigned getCGImmOpValue(const MCInst &MI, unsigned Op,
+  unsigned getEPImmOpValue(const MCInst &MI, unsigned Op,
                            SmallVectorImpl<MCFixup> &Fixups,
                            const MCSubtargetInfo &STI) const;
 
@@ -162,7 +162,7 @@ unsigned G3KHMCCodeEmitter::getPCRelImmOpValue(const MCInst &MI, unsigned Op,
   return 0;
 }
 
-unsigned G3KHMCCodeEmitter::getCGImmOpValue(const MCInst &MI, unsigned Op,
+unsigned G3KHMCCodeEmitter::getEPImmOpValue(const MCInst &MI, unsigned Op,
                                               SmallVectorImpl<MCFixup> &Fixups,
                                               const MCSubtargetInfo &STI) const {
   const MCOperand &MO = MI.getOperand(Op);

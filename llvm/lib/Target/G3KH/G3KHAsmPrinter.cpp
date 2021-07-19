@@ -112,12 +112,12 @@ void G3KHAsmPrinter::printSrcMemOperand(const MachineInstr *MI, int OpNum,
   // Print displacement first
 
   // Imm here is in fact global address - print extra modifier.
-  if (Disp.isImm() && Base.getReg() == G3KH::SR)
+  if (Disp.isImm() && Base.getReg() == G3KH::TP)
     O << '&';
   printOperand(MI, OpNum+1, O, "nohash");
 
   // Print register base field
-  if (Base.getReg() != G3KH::SR && Base.getReg() != G3KH::PC) {
+  if (Base.getReg() != G3KH::TP && Base.getReg() != G3KH::PC) {
     O << '(';
     printOperand(MI, OpNum, O);
     O << ')';

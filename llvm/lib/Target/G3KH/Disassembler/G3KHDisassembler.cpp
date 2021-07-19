@@ -64,8 +64,8 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeG3KHDisassembler() {
 }
 
 static const unsigned GR8DecoderTable[] = {
-  G3KH::PCB,  G3KH::SPB,  G3KH::SRB,  G3KH::CGB,
-  G3KH::R4B,  G3KH::R5B,  G3KH::R6B,  G3KH::R7B,
+  G3KH::PCB,  G3KH::SPB,  G3KH::TPB,  G3KH::EPB,
+  G3KH::R1B,  G3KH::R2B,  G3KH::R6B,  G3KH::R7B,
   G3KH::R8B,  G3KH::R9B,  G3KH::R10B, G3KH::R11B,
   G3KH::R12B, G3KH::R13B, G3KH::R14B, G3KH::R15B
 };
@@ -82,8 +82,8 @@ static DecodeStatus DecodeGR8RegisterClass(MCInst &MI, uint64_t RegNo,
 }
 
 static const unsigned GR16DecoderTable[] = {
-  G3KH::PC,  G3KH::SP,  G3KH::SR,  G3KH::CG,
-  G3KH::R4,  G3KH::R5,  G3KH::R6,  G3KH::R7,
+  G3KH::PC,  G3KH::SP,  G3KH::TP,  G3KH::EP,
+  G3KH::R1,  G3KH::R2,  G3KH::R6,  G3KH::R7,
   G3KH::R8,  G3KH::R9,  G3KH::R10, G3KH::R11,
   G3KH::R12, G3KH::R13, G3KH::R14, G3KH::R15
 };
@@ -99,7 +99,7 @@ static DecodeStatus DecodeGR16RegisterClass(MCInst &MI, uint64_t RegNo,
   return MCDisassembler::Success;
 }
 
-static DecodeStatus DecodeCGImm(MCInst &MI, uint64_t Bits, uint64_t Address,
+static DecodeStatus DecodeEPImm(MCInst &MI, uint64_t Bits, uint64_t Address,
                                 const void *Decoder);
 
 static DecodeStatus DecodeMemOperand(MCInst &MI, uint64_t Bits,
@@ -108,7 +108,7 @@ static DecodeStatus DecodeMemOperand(MCInst &MI, uint64_t Bits,
 
 #include "G3KHGenDisassemblerTables.inc"
 
-static DecodeStatus DecodeCGImm(MCInst &MI, uint64_t Bits, uint64_t Address,
+static DecodeStatus DecodeEPImm(MCInst &MI, uint64_t Bits, uint64_t Address,
                                 const void *Decoder) {
   int64_t Imm;
   switch (Bits) {

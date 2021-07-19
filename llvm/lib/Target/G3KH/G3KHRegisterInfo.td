@@ -32,12 +32,13 @@ class G3KHRegWithSubregs<bits<5> num, string n, list<Register> subregs,
 //  Registers
 //===----------------------------------------------------------------------===//
 
-def PCB  : G3KHReg<0,  "r0", ["pc"]>;
-def SPB  : G3KHReg<1,  "r1", ["sp"]>;
-def SRB  : G3KHReg<2,  "r2", ["sr"]>;
-def CGB  : G3KHReg<3,  "r3", ["cg"]>;
-def R4B  : G3KHReg<4,  "r4", ["fp"]>;
-def R5B  : G3KHReg<5,  "r5">;
+def PCB  : G3KHReg<0,  "pc">;
+def R0B  : G3KHReg<0,  "r0", ["zero"]>;
+def R1B  : G3KHReg<1,  "r1">;
+def R2B  : G3KHReg<2,  "r2">;
+def SPB  : G3KHReg<3,  "r3", ["sp"]>;
+def GPB  : G3KHReg<4,  "r4", ["gp"]>;
+def TPB  : G3KHReg<5,  "r5", ["tp"]>;
 def R6B  : G3KHReg<6,  "r6">;
 def R7B  : G3KHReg<7,  "r7">;
 def R8B  : G3KHReg<8,  "r8">;
@@ -62,18 +63,19 @@ def R26B : G3KHReg<26, "r26">;
 def R27B : G3KHReg<27, "r27">;
 def R28B : G3KHReg<28, "r28">;
 def R29B : G3KHReg<29, "r29">;
-def R30B : G3KHReg<30, "r30">;
-def R31B : G3KHReg<31, "r31">;
+def EPB : G3KHReg<30, "r30", ["ep"]>;
+def LPB : G3KHReg<31, "r31", ["lp"]>;
 
 def subreg_8bit : SubRegIndex<8> { let Namespace = "G3KH"; }
 
 let SubRegIndices = [subreg_8bit] in {
-def PC  : G3KHRegWithSubregs<0,  "r0",  [PCB], ["pc"]>;
-def SP  : G3KHRegWithSubregs<1,  "r1",  [SPB], ["sp"]>;
-def SR  : G3KHRegWithSubregs<2,  "r2",  [SRB], ["sr"]>;
-def CG  : G3KHRegWithSubregs<3,  "r3",  [CGB], ["cg"]>;
-def R4  : G3KHRegWithSubregs<4,  "r4",  [R4B], ["fp"]>;
-def R5  : G3KHRegWithSubregs<5,  "r5",  [R5B]>;
+def PC  : G3KHRegWithSubregs<0,  "pc",  [PCB]>;
+def R0  : G3KHRegWithSubregs<0,  "r0",  [R0B], ["zero"]>;
+def R1  : G3KHRegWithSubregs<1,  "r1",  [R1B]>;
+def R2  : G3KHRegWithSubregs<2,  "r2",  [R2B]>;
+def SP  : G3KHRegWithSubregs<3,  "r3",  [SPB], ["sp"]>;
+def GP  : G3KHRegWithSubregs<4,  "r4",  [GPB], ["gp"]>;
+def TP  : G3KHRegWithSubregs<5,  "r5",  [TPB], ["tp"]>;
 def R6  : G3KHRegWithSubregs<6,  "r6",  [R6B]>;
 def R7  : G3KHRegWithSubregs<7,  "r7",  [R7B]>;
 def R8  : G3KHRegWithSubregs<8,  "r8",  [R8B]>;
@@ -98,25 +100,33 @@ def R26 : G3KHRegWithSubregs<26, "r26", [R26B]>;
 def R27 : G3KHRegWithSubregs<27, "r27", [R27B]>;
 def R28 : G3KHRegWithSubregs<28, "r28", [R28B]>;
 def R29 : G3KHRegWithSubregs<29, "r29", [R29B]>;
-def R30 : G3KHRegWithSubregs<30, "r30", [R30B]>;
-def R31 : G3KHRegWithSubregs<31, "r31", [R31B]>;
+def EP : G3KHRegWithSubregs<30, "r30", [EPB], ["ep"]>;
+def LP : G3KHRegWithSubregs<31, "r31", [LPB], ["lp"]>;
 }
 
 def GR8 : RegisterClass<"G3KH", [i8], 8,
    // Volatile registers
-  (add R12B, R13B, R14B, R15B, R11B, R10B, R9B, R8B, R7B, R6B, R5B,
-   // Frame pointer, sometimes allocable
-   R4B,
+  (add R24B, R25B, R26B, R27B, R20B, R21B, R22B, R23B, R28B, R29B,
+  R16B, R17B, R18B, R19B, 
+  R12B, R13B, R14B, R15B, R11B, R10B, R9B, R8B, R7B, R6B,
+   // asm usage
+   R1B, 
+   // rtos usage
+   R2B,
    // Volatile, but not allocable
-   PCB, SPB, SRB, CGB)>;
+   PCB, SPB, GPB, TPB, EPB, LPB )>;
 
 def GR16 : RegisterClass<"G3KH", [i16], 16,
    // Volatile registers
-  (add R12, R13, R14, R15, R11, R10, R9, R8, R7, R6, R5,
-   // Frame pointer, sometimes allocable
-   R4,
+  (add R24, R25, R26, R27, R20, R21, R22, R23, R28, R29, 
+  R16, R17, R18, R19, 
+  R12, R13, R14, R15, R11, R10, R9, R8, R7, R6,
+   // asm usage
+   R1, 
+   // rtos usage
+   R2,
    // Volatile, but not allocable
-   PC, SP, SR, CG)>;
+   PC, SP, GP, TP, EP, LP )>;
 
 // def GR32 : RegisterClass<"G3KH", [i32], 32,
 //    // Volatile registers

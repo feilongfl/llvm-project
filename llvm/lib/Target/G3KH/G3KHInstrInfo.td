@@ -127,25 +127,25 @@ def cc : Operand<i8> {
   let EncoderMethod = "getCCOpValue";
 }
 
-def CGImmAsmOperand : AsmOperandClass {
-  let Name = "CGImm";
+def EPImmAsmOperand : AsmOperandClass {
+  let Name = "EPImm";
   let RenderMethod = "addImmOperands";
 }
 
 def cg8imm : Operand<i8>,
              ImmLeaf<i8, [{return Imm == 0 || Imm == 1 || Imm == 2 ||
                                   Imm == 4 || Imm == 8 || Imm == -1;}]> {
-  let ParserMatchClass = CGImmAsmOperand;
-  let EncoderMethod = "getCGImmOpValue";
-  let DecoderMethod = "DecodeCGImm";
+  let ParserMatchClass = EPImmAsmOperand;
+  let EncoderMethod = "getEPImmOpValue";
+  let DecoderMethod = "DecodeEPImm";
 }
 
 def cg16imm : Operand<i16>,
               ImmLeaf<i16, [{return Imm == 0 || Imm == 1 || Imm == 2 ||
                                     Imm == 4 || Imm == 8 || Imm == -1;}]> {
-  let ParserMatchClass = CGImmAsmOperand;
-  let EncoderMethod = "getCGImmOpValue";
-  let DecoderMethod = "DecodeCGImm";
+  let ParserMatchClass = EPImmAsmOperand;
+  let EncoderMethod = "getEPImmOpValue";
+  let DecoderMethod = "DecodeEPImm";
 }
 
 //===----------------------------------------------------------------------===//
@@ -169,8 +169,8 @@ def and_su : PatFrag<(ops node:$lhs, node:$rhs), (and node:$lhs, node:$rhs), [{
 // a stack adjustment and the codegen must know that they may modify the stack
 // pointer before prolog-epilog rewriting occurs.
 // Pessimistically assume ADJCALLSTACKDOWN / ADJCALLSTACKUP will become
-// sub / add which can clobber SR.
-let isCodeGenOnly = 1, Defs = [SP, SR], Uses = [SP] in {
+// sub / add which can clobber TP.
+let isCodeGenOnly = 1, Defs = [SP, TP], Uses = [SP] in {
 def ADJCALLSTACKDOWN : Pseudo<(outs), (ins i16imm:$amt1, i16imm:$amt2),
                               "#ADJCALLSTACKDOWN $amt1 $amt2",
                               [(G3KHcallseq_start timm:$amt1, timm:$amt2)]>;
@@ -179,13 +179,13 @@ def ADJCALLSTACKUP   : Pseudo<(outs), (ins i16imm:$amt1, i16imm:$amt2),
                               [(G3KHcallseq_end timm:$amt1, timm:$amt2)]>;
 }
 
-let isCodeGenOnly = 1, Defs = [SR], Uses = [SP] in {
+let isCodeGenOnly = 1, Defs = [TP], Uses = [SP] in {
 def ADDframe : Pseudo<(outs GR16:$dst), (ins i16imm:$base, i16imm:$offset),
                       "# ADDframe PSEUDO", []>;
 }
 
 let isCodeGenOnly = 1, usesCustomInserter = 1 in {
-  let Uses = [SR] in {
+  let Uses = [TP] in {
   def Select8  : Pseudo<(outs GR8:$dst), (ins GR8:$src, GR8:$src2, i8imm:$cc),
                         "# Select8 PSEUDO",
                         [(set GR8:$dst,
@@ -195,7 +195,7 @@ let isCodeGenOnly = 1, usesCustomInserter = 1 in {
                         [(set GR16:$dst,
                           (G3KHselectcc GR16:$src, GR16:$src2, imm:$cc))]>;
   }
-  let Defs = [SR] in {
+  let Defs = [TP] in {
   def Shl8     : Pseudo<(outs GR8:$dst), (ins GR8:$src, GR8:$cnt),
                         "# Shl8 PSEUDO",
                         [(set GR8:$dst, (shl GR8:$src, GR8:$cnt))]>;
@@ -265,7 +265,7 @@ let isBarrier = 1 in {
 }
 
 // Conditional branches
-let Uses = [SR] in
+let Uses = [TP] in
   def JCC : CJForm<(outs), (ins jmptarget:$dst, cc:$cond),
                    "j$cond\t$dst",
                    [(G3KHbrcc bb:$dst, imm:$cond)]>;
@@ -279,7 +279,7 @@ let Uses = [SR] in
 // before calls from potentially appearing dead. Uses for argument
 // registers are added manually.
 let isCall = 1,
-    Defs = [R11, R12, R13, R14, R15, SR],
+    Defs = [R11, R12, R13, R14, R15, TP],
     Uses = [SP] in {
   def CALLi     : II16i<0b101,
                         (outs), (ins i16imm:$imm),
@@ -445,26 +445,26 @@ def MOV16mn : I16mn<0b0100, (outs), (ins memdst:$dst, indreg:$rs),
 
 multiclass Arith<bits<4> opcode, string asmstring, SDPatternOperator node,
                  bit commutes, list<Register> uses> {
-  let Defs = [SR], Uses = uses in {
+  let Defs = [TP], Uses = uses in {
   let Constraints = "$src2 = $rd" in {
   let isCommutable = commutes in {
   def 8rr : I8rr<opcode, (outs GR8:$rd), (ins GR8:$src2, GR8:$rs),
                  !strconcat(asmstring, ".b\t$rs, $rd"),
                  [(set GR8:$rd, (node GR8:$src2, GR8:$rs)),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16rr : I16rr<opcode, (outs GR16:$rd), (ins GR16:$src2, GR16:$rs),
                    !strconcat(asmstring, "\t$rs, $rd"),
                    [(set GR16:$rd, (node GR16:$src2, GR16:$rs)),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
   }
   def 8rm : I8rm<opcode, (outs GR8:$rd), (ins GR8:$src2, memsrc:$src),
                  !strconcat(asmstring, ".b\t$src, $rd"),
                  [(set GR8:$rd, (node GR8:$src2, (load addr:$src))),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16rm : I16rm<opcode, (outs GR16:$rd), (ins GR16:$src2, memsrc:$src),
                    !strconcat(asmstring, "\t$src, $rd"),
                    [(set GR16:$rd, (node GR16:$src2, (load addr:$src))),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
   def 8rn : I8rn<opcode, (outs GR8:$rd), (ins GR8:$src2, indreg:$rs),
                  !strconcat(asmstring, ".b\t$rs, $rd"), []>;
   def 16rn : I16rn<opcode, (outs GR16:$rd), (ins GR16:$src2, indreg:$rs),
@@ -480,54 +480,54 @@ multiclass Arith<bits<4> opcode, string asmstring, SDPatternOperator node,
   def 8rc : I8rc<opcode, (outs GR8:$rd), (ins GR8:$src2, cg8imm:$imm),
                  !strconcat(asmstring, ".b\t$imm, $rd"),
                  [(set GR8:$rd, (node GR8:$src2, cg8imm:$imm)),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16rc : I16rc<opcode, (outs GR16:$rd), (ins GR16:$src2, cg16imm:$imm),
                  !strconcat(asmstring, "\t$imm, $rd"),
                  [(set GR16:$rd, (node GR16:$src2, cg16imm:$imm)),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 8ri : I8ri<opcode, (outs GR8:$rd), (ins GR8:$src2, i8imm:$imm),
                  !strconcat(asmstring, ".b\t$imm, $rd"),
                  [(set GR8:$rd, (node GR8:$src2, imm:$imm)),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16ri : I16ri<opcode, (outs GR16:$rd), (ins GR16:$src2, i16imm:$imm),
                  !strconcat(asmstring, "\t$imm, $rd"),
                  [(set GR16:$rd, (node GR16:$src2, imm:$imm)),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   }
   def 8mr : I8mr<opcode, (outs), (ins memdst:$dst, GR8:$rs),
                  !strconcat(asmstring, ".b\t$rs, $dst"),
                  [(store (node (load addr:$dst), GR8:$rs), addr:$dst),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16mr : I16mr<opcode, (outs), (ins memdst:$dst, GR16:$rs),
                    !strconcat(asmstring, "\t$rs, $dst"),
                    [(store (node (load addr:$dst), GR16:$rs), addr:$dst),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
   def 8mc : I8mc<opcode, (outs), (ins memdst:$dst, cg8imm:$imm),
                  !strconcat(asmstring, ".b\t$imm, $dst"),
                  [(store (node (load addr:$dst), (i8 cg8imm:$imm)), addr:$dst),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16mc : I16mc<opcode, (outs), (ins memdst:$dst, cg16imm:$imm),
                    !strconcat(asmstring, "\t$imm, $dst"),
                    [(store (node (load addr:$dst), (i16 cg16imm:$imm)), addr:$dst),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
   def 8mi : I8mi<opcode, (outs), (ins memdst:$dst, i8imm:$imm),
                  !strconcat(asmstring, ".b\t$imm, $dst"),
                  [(store (node (load addr:$dst), (i8 imm:$imm)), addr:$dst),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16mi : I16mi<opcode, (outs), (ins memdst:$dst, i16imm:$imm),
                    !strconcat(asmstring, "\t$imm, $dst"),
                    [(store (node (load addr:$dst), (i16 imm:$imm)), addr:$dst),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
   def 8mm : I8mm<opcode, (outs), (ins memdst:$dst, memsrc:$src),
                  !strconcat(asmstring, ".b\t$src, $dst"),
                  [(store (node (load addr:$dst), 
                                (i8 (load addr:$src))), addr:$dst),
-                  (implicit SR)]>;
+                  (implicit TP)]>;
   def 16mm : I16mm<opcode, (outs), (ins memdst:$dst, memsrc:$src),
                    !strconcat(asmstring, "\t$src, $dst"),
                    [(store (node (load addr:$dst), 
                                  (i16 (load addr:$src))), addr:$dst),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
   def 8mn : I8mn<opcode, (outs), (ins memdst:$dst, indreg:$rs),
                  !strconcat(asmstring, ".b\t$rs, $dst"), []>;
   def 16mn : I16mn<opcode, (outs), (ins memdst:$dst, indreg:$rs),
@@ -540,14 +540,14 @@ multiclass Arith<bits<4> opcode, string asmstring, SDPatternOperator node,
 }
 
 defm ADD  : Arith<0b0101, "add",  add,  1, []>;
-defm ADDC : Arith<0b0110, "addc", adde, 1, [SR]>;
+defm ADDC : Arith<0b0110, "addc", adde, 1, [TP]>;
 defm AND  : Arith<0b1111, "and",  and,  1, []>;
 defm BIS  : Arith<0b1101, "bis",  or,   1, []>;
 defm BIC  : Arith<0b1100, "bic",  bic,  0, []>;
 defm XOR  : Arith<0b1110, "xor",  xor,  1, []>;
 defm SUB  : Arith<0b1000, "sub",  sub,  0, []>;
-defm SUBC : Arith<0b0111, "subc", sube, 0, [SR]>;
-defm DADD : Arith<0b1010, "dadd", G3KHdadd, 1, [SR]>;
+defm SUBC : Arith<0b0111, "subc", sube, 0, [TP]>;
+defm DADD : Arith<0b1010, "dadd", G3KHdadd, 1, [TP]>;
 
 def ADC8r   : InstAlias<"adc.b\t$dst",  (ADDC8rc   GR8:$dst,     0)>;
 def ADC16r  : InstAlias<"adc\t$dst",    (ADDC16rc  GR16:$dst,    0)>;
@@ -602,22 +602,22 @@ def RLC16r  : InstAlias<"rlc\t$dst",    (ADDC16rr  GR16:$dst,    GR16:$dst),   0
 def RLC8m   : InstAlias<"rlc.b\t$dst",  (ADDC8mm   memdst:$dst,  memdst:$dst), 0>;
 def RLC16m  : InstAlias<"rlc\t$dst",    (ADDC16mm  memdst:$dst,  memdst:$dst), 0>;
 
-def DINT : InstAlias<"dint", (BIC16rc SR, 8)>;
-def EINT : InstAlias<"eint", (BIS16rc SR, 8)>;
+def DINT : InstAlias<"dint", (BIC16rc TP, 8)>;
+def EINT : InstAlias<"eint", (BIS16rc TP, 8)>;
 
-def NOP  : InstAlias<"nop",  (MOV16rc CG, 0)>;
+def NOP  : InstAlias<"nop",  (MOV16rc EP, 0)>;
 
 def CLR8r   : InstAlias<"clr.b\t$dst",  (MOV8rc    GR8:$dst,     0)>;
 def CLR16r  : InstAlias<"clr\t$dst",    (MOV16rc   GR16:$dst,    0)>;
 def CLR8m   : InstAlias<"clr.b\t$dst",  (MOV8mc    memdst:$dst,  0)>;
 def CLR16m  : InstAlias<"clr\t$dst",    (MOV16mc   memdst:$dst,  0)>;
 
-def CLRC : InstAlias<"clrc", (BIC16rc SR, 1)>;
-def CLRN : InstAlias<"clrn", (BIC16rc SR, 4)>;
-def CLRZ : InstAlias<"clrz", (BIC16rc SR, 2)>;
-def SETC : InstAlias<"setc", (BIS16rc SR, 1)>;
-def SETN : InstAlias<"setn", (BIS16rc SR, 4)>;
-def SETZ : InstAlias<"setz", (BIS16rc SR, 2)>;
+def CLRC : InstAlias<"clrc", (BIC16rc TP, 1)>;
+def CLRN : InstAlias<"clrn", (BIC16rc TP, 4)>;
+def CLRZ : InstAlias<"clrz", (BIC16rc TP, 2)>;
+def SETC : InstAlias<"setc", (BIS16rc TP, 1)>;
+def SETN : InstAlias<"setn", (BIS16rc TP, 4)>;
+def SETZ : InstAlias<"setz", (BIS16rc TP, 2)>;
 
 def : Pat<(G3KHrla GR8:$dst),  (ADD8rr  $dst, $dst)>;
 def : Pat<(G3KHrla GR16:$dst), (ADD16rr $dst, $dst)>;
@@ -626,38 +626,38 @@ def : Pat<(G3KHrla GR16:$dst), (ADD16rr $dst, $dst)>;
 // Register mode
 let Constraints = "$rs = $rd" in {
 
-let Defs = [SR] in {
+let Defs = [TP] in {
 def RRA8r :   II8r<0b010,
                    (outs GR8:$rd), (ins GR8:$rs),
                    "rra.b\t$rd",
                    [(set GR8:$rd, (G3KHrra GR8:$rs)),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def RRA16r : II16r<0b010,
                     (outs GR16:$rd), (ins GR16:$rs),
                     "rra\t$rd",
                     [(set GR16:$rd, (G3KHrra GR16:$rs)),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
-let Uses = [SR] in {
+let Uses = [TP] in {
 def RRC8r :   II8r<0b000,
                    (outs GR8:$rd), (ins GR8:$rs),
                    "rrc.b\t$rd",
                    [(set GR8:$rd, (G3KHrrc GR8:$rs)),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def RRC16r : II16r<0b000,
                    (outs GR16:$rd), (ins GR16:$rs),
                    "rrc\t$rd",
                    [(set GR16:$rd, (G3KHrrc GR16:$rs)),
-                    (implicit SR)]>;
-} // Uses = [SR]
+                    (implicit TP)]>;
+} // Uses = [TP]
 
 def SEXT16r : II16r<0b011,
                     (outs GR16:$rd), (ins GR16:$rs),
                     "sxt\t$rd",
                     [(set GR16:$rd, (sext_inreg GR16:$rs, i8)),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
-} // Defs = [SR]
+} // Defs = [TP]
 
 let isCodeGenOnly = 1 in
 def ZEXT16r : I8rr<0b0100,
@@ -673,52 +673,52 @@ def SWPB16r : II16r<0b001,
 } // Constraints = "$src = $dst"
 
 // Indexed, indirect register and indirect autoincrement modes
-let Defs = [SR] in {
+let Defs = [TP] in {
 def RRA8m  : II8m<0b010,
                    (outs), (ins memsrc:$src),
                    "rra.b\t$src",
                    [(store (G3KHrra (i8 (load addr:$src))), addr:$src),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def RRA16m : II16m<0b010,
                    (outs), (ins memsrc:$src),
                    "rra\t$src",
                    [(store (G3KHrra (i16 (load addr:$src))), addr:$src),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 
 def RRA8n  : II8n<0b010, (outs), (ins indreg:$rs), "rra.b\t$rs", []>;
 def RRA16n : II16n<0b010, (outs), (ins indreg:$rs), "rra\t$rs", []>;
 def RRA8p  : II8p<0b010, (outs), (ins postreg:$rs), "rra.b\t$rs", []>;
 def RRA16p : II16p<0b010, (outs), (ins postreg:$rs), "rra\t$rs", []>;
 
-let Uses = [SR] in {
+let Uses = [TP] in {
 def RRC8m  : II8m<0b000,
                    (outs), (ins memsrc:$src),
                    "rrc.b\t$src",
                    [(store (G3KHrrc (i8 (load addr:$src))), addr:$src),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def RRC16m : II16m<0b000,
                    (outs), (ins memsrc:$src),
                    "rrc\t$src",
                    [(store (G3KHrrc (i16 (load addr:$src))), addr:$src),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 
 def RRC8n  : II8n<0b000, (outs), (ins indreg:$rs), "rrc.b\t$rs", []>;
 def RRC16n : II16n<0b000, (outs), (ins indreg:$rs), "rrc\t$rs", []>;
 def RRC8p  : II8p<0b000, (outs), (ins postreg:$rs), "rrc.b\t$rs", []>;
 def RRC16p : II16p<0b000, (outs), (ins postreg:$rs), "rrc\t$rs", []>;
 
-} // Uses = [SR]
+} // Uses = [TP]
 
 def SEXT16m : II16m<0b011,
                     (outs), (ins memsrc:$src),
                     "sxt\t$src",
                     [(store (sext_inreg (extloadi16i8 addr:$src), i8),
                              addr:$src),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 def SEXT16n : II16n<0b011, (outs), (ins indreg:$rs), "sxt\t$rs", []>;
 def SEXT16p : II16p<0b011, (outs), (ins postreg:$rs), "sxt\t$rs", []>;
 
-} // Defs = [SR]
+} // Defs = [TP]
 
 def SWPB16m : II16m<0b001,
                    (outs), (ins memsrc:$src),
@@ -728,66 +728,66 @@ def SWPB16n : II16n<0b001, (outs), (ins indreg:$rs), "swpb\t$rs", []>;
 def SWPB16p : II16p<0b001, (outs), (ins postreg:$rs), "swpb\t$rs", []>;
 
 // Integer comparisons
-let Defs = [SR] in {
+let Defs = [TP] in {
 def CMP8rr  : I8rr<0b1001,
                    (outs), (ins GR8:$rd, GR8:$rs),
                    "cmp.b\t$rs, $rd",
-                   [(G3KHcmp GR8:$rd, GR8:$rs), (implicit SR)]>;
+                   [(G3KHcmp GR8:$rd, GR8:$rs), (implicit TP)]>;
 def CMP16rr : I16rr<0b1001,
                     (outs), (ins GR16:$rd, GR16:$rs),
                     "cmp\t$rs, $rd",
-                    [(G3KHcmp GR16:$rd, GR16:$rs), (implicit SR)]>;
+                    [(G3KHcmp GR16:$rd, GR16:$rs), (implicit TP)]>;
 
 def CMP8rc  : I8rc<0b1001,
                    (outs), (ins GR8:$rd, cg8imm:$imm),
                    "cmp.b\t$imm, $rd",
-                   [(G3KHcmp GR8:$rd, cg8imm:$imm), (implicit SR)]>;
+                   [(G3KHcmp GR8:$rd, cg8imm:$imm), (implicit TP)]>;
 def CMP16rc : I16rc<0b1001,
                     (outs), (ins GR16:$rd, cg16imm:$imm),
                     "cmp\t$imm, $rd",
-                    [(G3KHcmp GR16:$rd, cg16imm:$imm), (implicit SR)]>;
+                    [(G3KHcmp GR16:$rd, cg16imm:$imm), (implicit TP)]>;
 
 def CMP8ri  : I8ri<0b1001,
                    (outs), (ins GR8:$rd, i8imm:$imm),
                    "cmp.b\t$imm, $rd",
-                   [(G3KHcmp GR8:$rd, imm:$imm), (implicit SR)]>;
+                   [(G3KHcmp GR8:$rd, imm:$imm), (implicit TP)]>;
 def CMP16ri : I16ri<0b1001,
                     (outs), (ins GR16:$rd, i16imm:$imm),
                     "cmp\t$imm, $rd",
-                    [(G3KHcmp GR16:$rd, imm:$imm), (implicit SR)]>;
+                    [(G3KHcmp GR16:$rd, imm:$imm), (implicit TP)]>;
 
 def CMP8mc  : I8mc<0b1001,
                    (outs), (ins memsrc:$dst, cg8imm:$imm),
                    "cmp.b\t$imm, $dst",
                    [(G3KHcmp (load addr:$dst), (i8 cg8imm:$imm)),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def CMP16mc : I16mc<0b1001,
                     (outs), (ins memsrc:$dst, cg16imm:$imm),
                     "cmp\t$imm, $dst",
                     [(G3KHcmp (load addr:$dst), (i16 cg16imm:$imm)),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def CMP8mi  : I8mi<0b1001,
                    (outs), (ins memsrc:$dst, i8imm:$imm),
                    "cmp.b\t$imm, $dst",
                    [(G3KHcmp (load addr:$dst),
-                               (i8 imm:$imm)), (implicit SR)]>;
+                               (i8 imm:$imm)), (implicit TP)]>;
 def CMP16mi : I16mi<0b1001,
                     (outs), (ins memsrc:$dst, i16imm:$imm),
                     "cmp\t$imm, $dst",
                      [(G3KHcmp (load addr:$dst),
-                                 (i16 imm:$imm)), (implicit SR)]>;
+                                 (i16 imm:$imm)), (implicit TP)]>;
 
 def CMP8rm  : I8rm<0b1001,
                    (outs), (ins GR8:$rd, memsrc:$src),
                    "cmp.b\t$src, $rd",
                    [(G3KHcmp GR8:$rd, (load addr:$src)), 
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def CMP16rm : I16rm<0b1001,
                     (outs), (ins GR16:$rd, memsrc:$src),
                     "cmp\t$src, $rd",
                     [(G3KHcmp GR16:$rd, (load addr:$src)),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def CMP8rn  : I8rn<0b1001,
                    (outs), (ins GR8:$rd, indreg:$rs), "cmp.b\t$rs, $rd", []>;
@@ -803,21 +803,21 @@ def CMP8mr  : I8mr<0b1001,
                    (outs), (ins memsrc:$dst, GR8:$rs),
                    "cmp.b\t$rs, $dst",
                    [(G3KHcmp (load addr:$dst), GR8:$rs),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def CMP16mr : I16mr<0b1001,
                     (outs), (ins memsrc:$dst, GR16:$rs),
                     "cmp\t$rs, $dst",
                     [(G3KHcmp (load addr:$dst), GR16:$rs), 
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 def CMP8mm  : I8mm<0b1001,
                    (outs), (ins memdst:$dst, memsrc:$src),
                    "cmp.b\t$src, $dst",
                    [(G3KHcmp (load addr:$dst), (i8 (load addr:$src))),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def CMP16mm : I16mm<0b1001, (outs), (ins memdst:$dst, memsrc:$src),
                     "cmp\t$src, $dst",
                     [(G3KHcmp (load addr:$dst), (i16 (load addr:$src))),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def CMP8mn  : I8mn<0b1001, (outs), (ins memsrc:$dst, indreg:$rs),
                    "cmp.b\t$rs, $dst", []>;
@@ -836,45 +836,45 @@ def BIT8rr  : I8rr<0b1011,
                    (outs), (ins GR8:$rd, GR8:$rs),
                    "bit.b\t$rs, $rd",
                    [(G3KHcmp (and_su GR8:$rd, GR8:$rs), 0),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def BIT16rr : I16rr<0b1011,
                     (outs), (ins GR16:$rd, GR16:$rs),
                     "bit\t$rs, $rd",
                     [(G3KHcmp (and_su GR16:$rd, GR16:$rs), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 }
 def BIT8rc  : I8rc<0b1011,
                    (outs), (ins GR8:$rd, cg8imm:$imm),
                    "bit.b\t$imm, $rd",
                    [(G3KHcmp (and_su GR8:$rd, cg8imm:$imm), 0),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def BIT16rc : I16rc<0b1011,
                     (outs), (ins GR16:$rd, cg16imm:$imm),
                     "bit\t$imm, $rd",
                     [(G3KHcmp (and_su GR16:$rd, cg16imm:$imm), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def BIT8ri  : I8ri<0b1011,
                    (outs), (ins GR8:$rd, i8imm:$imm),
                    "bit.b\t$imm, $rd",
                    [(G3KHcmp (and_su GR8:$rd, imm:$imm), 0),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def BIT16ri : I16ri<0b1011,
                     (outs), (ins GR16:$rd, i16imm:$imm),
                     "bit\t$imm, $rd",
                     [(G3KHcmp (and_su GR16:$rd, imm:$imm), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def BIT8rm  : I8rm<0b1011,
                    (outs), (ins GR8:$rd, memdst:$src),
                    "bit.b\t$src, $rd",
                    [(G3KHcmp (and_su GR8:$rd,  (load addr:$src)), 0),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def BIT16rm : I16rm<0b1011,
                     (outs), (ins GR16:$rd, memdst:$src),
                     "bit\t$src, $rd",
                     [(G3KHcmp (and_su GR16:$rd,  (load addr:$src)), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def BIT8rn  : I8rn<0b1011, (outs), (ins GR8:$rd, indreg:$rs),
                    "bit.b\t$rs, $rd", []>;
@@ -890,34 +890,34 @@ def BIT8mr  : I8mr<0b1011,
                   (outs), (ins memsrc:$dst, GR8:$rs),
                   "bit.b\t$rs, $dst",
                   [(G3KHcmp (and_su (load addr:$dst), GR8:$rs), 0),
-                   (implicit SR)]>;
+                   (implicit TP)]>;
 def BIT16mr : I16mr<0b1011,
                     (outs), (ins memsrc:$dst, GR16:$rs),
                     "bit\t$rs, $dst",
                     [(G3KHcmp (and_su (load addr:$dst), GR16:$rs), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def BIT8mc  : I8mc<0b1011,
                    (outs), (ins memsrc:$dst, cg8imm:$imm),
                    "bit.b\t$imm, $dst",
                    [(G3KHcmp (and_su (load addr:$dst), (i8 cg8imm:$imm)), 0),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def BIT16mc : I16mc<0b1011,
                     (outs), (ins memdst:$dst, cg16imm:$imm),
                     "bit\t$imm, $dst",
                     [(G3KHcmp (and_su (load addr:$dst), (i16 cg16imm:$imm)), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def BIT8mi  : I8mi<0b1011,
                    (outs), (ins memsrc:$dst, i8imm:$imm),
                    "bit.b\t$imm, $dst",
                    [(G3KHcmp (and_su (load addr:$dst), (i8 imm:$imm)), 0),
-                    (implicit SR)]>;
+                    (implicit TP)]>;
 def BIT16mi : I16mi<0b1011,
                     (outs), (ins memsrc:$dst, i16imm:$imm),
                     "bit\t$imm, $dst",
                     [(G3KHcmp (and_su (load addr:$dst), (i16 imm:$imm)), 0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 
 def BIT8mm  : I8mm<0b1011,
                    (outs), (ins memsrc:$dst, memsrc:$src),
@@ -925,14 +925,14 @@ def BIT8mm  : I8mm<0b1011,
                    [(G3KHcmp (and_su (i8 (load addr:$dst)),
                                        (load addr:$src)),
                                  0),
-                      (implicit SR)]>;
+                      (implicit TP)]>;
 def BIT16mm : I16mm<0b1011,
                     (outs), (ins memsrc:$dst, memsrc:$src),
                     "bit\t$src, $dst",
                     [(G3KHcmp (and_su (i16 (load addr:$dst)),
                                         (load addr:$src)),
                                  0),
-                     (implicit SR)]>;
+                     (implicit TP)]>;
 def BIT8mn  : I8mn<0b1011, (outs), (ins memsrc:$dst, indreg:$rs),
                    "bit.b\t$rs, $dst", []>;
 def BIT16mn : I16mn<0b1011, (outs), (ins memsrc:$dst, indreg:$rs),
@@ -943,7 +943,7 @@ def BIT8mp  : I8mp<0b1011, (outs), (ins memsrc:$dst, postreg:$rs),
 def BIT16mp : I16mp<0b1011, (outs), (ins memsrc:$dst, postreg:$rs),
                     "bit\t$rs, $dst", []>;
 
-} // Defs = [SR]
+} // Defs = [TP]
 
 def TST8r   : InstAlias<"tst.b\t$dst",  (CMP8rc    GR8:$dst,     0)>;
 def TST16r  : InstAlias<"tst\t$dst",    (CMP16rc   GR16:$dst,    0)>;

@@ -78,7 +78,7 @@ void G3KHInstPrinter::printSrcMemOperand(const MCInst *MI, unsigned OpNo,
   // vs
   //   mov.w glb(r1), r2
   // Otherwise (!) g3kh-as will silently miscompile the output :(
-  if (Base.getReg() == G3KH::SR)
+  if (Base.getReg() == G3KH::TP)
     O << '&';
 
   if (Disp.isExpr())
@@ -89,7 +89,7 @@ void G3KHInstPrinter::printSrcMemOperand(const MCInst *MI, unsigned OpNo,
   }
 
   // Print register base field
-  if ((Base.getReg() != G3KH::SR) &&
+  if ((Base.getReg() != G3KH::TP) &&
       (Base.getReg() != G3KH::PC))
     O << '(' << getRegisterName(Base.getReg()) << ')';
 }

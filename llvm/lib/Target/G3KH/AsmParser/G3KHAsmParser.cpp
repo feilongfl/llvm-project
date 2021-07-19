@@ -162,7 +162,7 @@ public:
   bool isIndReg()         const { return Kind == k_IndReg; }
   bool isPostIndReg()     const { return Kind == k_PostIndReg; }
 
-  bool isCGImm() const {
+  bool isEPImm() const {
     if (Kind != k_Imm)
       return false;
 
@@ -494,7 +494,7 @@ bool G3KHAsmParser::ParseOperand(OperandVector &Operands) {
       const MCExpr *Val;
       if (!getParser().parseExpression(Val)) {
         SMLoc EndLoc = getParser().getTok().getLoc();
-        Operands.push_back(G3KHOperand::CreateMem(G3KH::SR, Val, StartLoc,
+        Operands.push_back(G3KHOperand::CreateMem(G3KH::TP, Val, StartLoc,
           EndLoc));
         return false;
       }
@@ -559,10 +559,10 @@ static unsigned convertGR16ToGR8(unsigned Reg) {
     llvm_unreachable("Unknown GR16 register");
   case G3KH::PC:  return G3KH::PCB;
   case G3KH::SP:  return G3KH::SPB;
-  case G3KH::SR:  return G3KH::SRB;
-  case G3KH::CG:  return G3KH::CGB;
-  case G3KH::R4:  return G3KH::R4B;
-  case G3KH::R5:  return G3KH::R5B;
+  case G3KH::EP:  return G3KH::EPB;
+  case G3KH::TP:  return G3KH::TPB;
+  case G3KH::R1:  return G3KH::R1B;
+  case G3KH::R2:  return G3KH::R2B;
   case G3KH::R6:  return G3KH::R6B;
   case G3KH::R7:  return G3KH::R7B;
   case G3KH::R8:  return G3KH::R8B;

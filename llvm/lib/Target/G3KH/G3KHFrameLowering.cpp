@@ -64,16 +64,16 @@ void G3KHFrameLowering::emitPrologue(MachineFunction &MF,
 
     // Save FP into the appropriate stack slot...
     BuildMI(MBB, MBBI, DL, TII.get(G3KH::PUSH16r))
-      .addReg(G3KH::R4, RegState::Kill);
+      .addReg(G3KH::R1, RegState::Kill);
 
     // Update FP with the new base value...
-    BuildMI(MBB, MBBI, DL, TII.get(G3KH::MOV16rr), G3KH::R4)
+    BuildMI(MBB, MBBI, DL, TII.get(G3KH::MOV16rr), G3KH::R1)
       .addReg(G3KH::SP);
 
     // Mark the FramePtr as live-in in every block except the entry.
     for (MachineFunction::iterator I = std::next(MF.begin()), E = MF.end();
          I != E; ++I)
-      I->addLiveIn(G3KH::R4);
+      I->addLiveIn(G3KH::R1);
 
   } else
     NumBytes = StackSize - G3KHFI->getCalleeSavedFrameSize();
@@ -132,7 +132,7 @@ void G3KHFrameLowering::emitEpilogue(MachineFunction &MF,
     NumBytes = FrameSize - CSSize;
 
     // pop FP.
-    BuildMI(MBB, MBBI, DL, TII.get(G3KH::POP16r), G3KH::R4);
+    BuildMI(MBB, MBBI, DL, TII.get(G3KH::POP16r), G3KH::R1);
   } else
     NumBytes = StackSize - CSSize;
 
@@ -154,7 +154,7 @@ void G3KHFrameLowering::emitEpilogue(MachineFunction &MF,
 
   if (MFI.hasVarSizedObjects()) {
     BuildMI(MBB, MBBI, DL,
-            TII.get(G3KH::MOV16rr), G3KH::SP).addReg(G3KH::R4);
+            TII.get(G3KH::MOV16rr), G3KH::SP).addReg(G3KH::R1);
     if (CSSize) {
       MachineInstr *MI =
         BuildMI(MBB, MBBI, DL,

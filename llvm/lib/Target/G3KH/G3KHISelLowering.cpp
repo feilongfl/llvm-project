@@ -1173,39 +1173,39 @@ SDValue G3KHTargetLowering::LowerSETCC(SDValue Op, SelectionDAG &DAG) const {
     Convert = false;
     break;
    case G3KHCC::COND_HS:
-     // Res = SR & 1, no processing is required
+     // Res = EP & 1, no processing is required
      break;
    case G3KHCC::COND_LO:
-     // Res = ~(SR & 1)
+     // Res = ~(EP & 1)
      Invert = true;
      break;
    case G3KHCC::COND_NE:
      if (andCC) {
-       // C = ~Z, thus Res = SR & 1, no processing is required
+       // C = ~Z, thus Res = EP & 1, no processing is required
      } else {
-       // Res = ~((SR >> 1) & 1)
+       // Res = ~((EP >> 1) & 1)
        Shift = true;
        Invert = true;
      }
      break;
    case G3KHCC::COND_E:
      Shift = true;
-     // C = ~Z for AND instruction, thus we can put Res = ~(SR & 1), however,
-     // Res = (SR >> 1) & 1 is 1 word shorter.
+     // C = ~Z for AND instruction, thus we can put Res = ~(EP & 1), however,
+     // Res = (EP >> 1) & 1 is 1 word shorter.
      break;
   }
   EVT VT = Op.getValueType();
   SDValue One  = DAG.getConstant(1, dl, VT);
   if (Convert) {
-    SDValue SR = DAG.getCopyFromReg(DAG.getEntryNode(), dl, G3KH::SR,
+    SDValue EP = DAG.getCopyFromReg(DAG.getEntryNode(), dl, G3KH::EP,
                                     MVT::i16, Flag);
     if (Shift)
       // FIXME: somewhere this is turned into a SRL, lower it MSP specific?
-      SR = DAG.getNode(ISD::SRA, dl, MVT::i16, SR, One);
-    SR = DAG.getNode(ISD::AND, dl, MVT::i16, SR, One);
+      EP = DAG.getNode(ISD::SRA, dl, MVT::i16, EP, One);
+    EP = DAG.getNode(ISD::AND, dl, MVT::i16, EP, One);
     if (Invert)
-      SR = DAG.getNode(ISD::XOR, dl, MVT::i16, SR, One);
-    return SR;
+      EP = DAG.getNode(ISD::XOR, dl, MVT::i16, EP, One);
+    return EP;
   } else {
     SDValue Zero = DAG.getConstant(0, dl, VT);
     SDValue Ops[] = {One, Zero, TargetCC, Flag};
@@ -1297,7 +1297,7 @@ SDValue G3KHTargetLowering::LowerFRAMEADDR(SDValue Op,
   SDLoc dl(Op);  // FIXME probably not meaningful
   unsigned Depth = cast<ConstantSDNode>(Op.getOperand(0))->getZExtValue();
   SDValue FrameAddr = DAG.getCopyFromReg(DAG.getEntryNode(), dl,
-                                         G3KH::R4, VT);
+                                         G3KH::R1, VT);
   while (Depth--)
     FrameAddr = DAG.getLoad(VT, dl, DAG.getEntryNode(), FrameAddr,
                             MachinePointerInfo());
@@ -1459,8 +1459,8 @@ G3KHTargetLowering::EmitShiftInstr(MachineInstr &MI,
     break;
   case G3KH::Rrcl8:
   case G3KH::Rrcl16: {
-    BuildMI(*BB, MI, dl, TII.get(G3KH::BIC16rc), G3KH::SR)
-      .addReg(G3KH::SR).addImm(1);
+    BuildMI(*BB, MI, dl, TII.get(G3KH::BIC16rc), G3KH::EP)
+      .addReg(G3KH::EP).addImm(1);
     Register SrcReg = MI.getOperand(1).getReg();
     Register DstReg = MI.getOperand(0).getReg();
     unsigned RrcOpc = MI.getOpcode() == G3KH::Rrcl16
@@ -1523,8 +1523,8 @@ G3KHTargetLowering::EmitShiftInstr(MachineInstr &MI,
     .addReg(ShiftAmtSrcReg).addMBB(BB)
     .addReg(ShiftAmtReg2).addMBB(LoopBB);
   if (ClearCarry)
-    BuildMI(LoopBB, dl, TII.get(G3KH::BIC16rc), G3KH::SR)
-      .addReg(G3KH::SR).addImm(1);
+    BuildMI(LoopBB, dl, TII.get(G3KH::BIC16rc), G3KH::EP)
+      .addReg(G3KH::EP).addImm(1);
   if (Opc == G3KH::ADD8rr || Opc == G3KH::ADD16rr)
     BuildMI(LoopBB, dl, TII.get(Opc), ShiftReg2)
       .addReg(ShiftReg)

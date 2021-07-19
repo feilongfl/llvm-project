@@ -39,23 +39,23 @@ G3KHRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   const G3KHFrameLowering *TFI = getFrameLowering(*MF);
   const Function* F = &MF->getFunction();
   static const MCPhysReg CalleeSavedRegs[] = {
-    G3KH::R4, G3KH::R5, G3KH::R6, G3KH::R7,
+    G3KH::R1, G3KH::R2, G3KH::R6, G3KH::R7,
     G3KH::R8, G3KH::R9, G3KH::R10,
     0
   };
   static const MCPhysReg CalleeSavedRegsFP[] = {
-    G3KH::R5, G3KH::R6, G3KH::R7,
+    G3KH::R2, G3KH::R6, G3KH::R7,
     G3KH::R8, G3KH::R9, G3KH::R10,
     0
   };
   static const MCPhysReg CalleeSavedRegsIntr[] = {
-    G3KH::R4,  G3KH::R5,  G3KH::R6,  G3KH::R7,
+    G3KH::R1,  G3KH::R2,  G3KH::R6,  G3KH::R7,
     G3KH::R8,  G3KH::R9,  G3KH::R10, G3KH::R11,
     G3KH::R12, G3KH::R13, G3KH::R14, G3KH::R15,
     0
   };
   static const MCPhysReg CalleeSavedRegsIntrFP[] = {
-    G3KH::R5,  G3KH::R6,  G3KH::R7,
+    G3KH::R2,  G3KH::R6,  G3KH::R7,
     G3KH::R8,  G3KH::R9,  G3KH::R10, G3KH::R11,
     G3KH::R12, G3KH::R13, G3KH::R14, G3KH::R15,
     0
@@ -77,17 +77,17 @@ BitVector G3KHRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   // Mark 4 special registers with subregisters as reserved.
   Reserved.set(G3KH::PCB);
   Reserved.set(G3KH::SPB);
-  Reserved.set(G3KH::SRB);
-  Reserved.set(G3KH::CGB);
+  Reserved.set(G3KH::TPB);
+  Reserved.set(G3KH::EPB);
   Reserved.set(G3KH::PC);
   Reserved.set(G3KH::SP);
-  Reserved.set(G3KH::SR);
-  Reserved.set(G3KH::CG);
+  Reserved.set(G3KH::TP);
+  Reserved.set(G3KH::EP);
 
   // Mark frame pointer as reserved if needed.
   if (TFI->hasFP(MF)) {
-    Reserved.set(G3KH::R4B);
-    Reserved.set(G3KH::R4);
+    Reserved.set(G3KH::R1B);
+    Reserved.set(G3KH::R1);
   }
 
   return Reserved;
@@ -112,7 +112,7 @@ G3KHRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   DebugLoc dl = MI.getDebugLoc();
   int FrameIndex = MI.getOperand(FIOperandNum).getIndex();
 
-  unsigned BasePtr = (TFI->hasFP(MF) ? G3KH::R4 : G3KH::SP);
+  unsigned BasePtr = (TFI->hasFP(MF) ? G3KH::R1 : G3KH::SP);
   int Offset = MF.getFrameInfo().getObjectOffset(FrameIndex);
 
   // Skip the saved PC
@@ -156,5 +156,5 @@ G3KHRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
 
 Register G3KHRegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   const G3KHFrameLowering *TFI = getFrameLowering(MF);
-  return TFI->hasFP(MF) ? G3KH::R4 : G3KH::SP;
+  return TFI->hasFP(MF) ? G3KH::R1 : G3KH::SP;
 }
