@@ -64,7 +64,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeG3KHDisassembler() {
 }
 
 static const unsigned GR8DecoderTable[] = {
-  G3KH::PCB,  G3KH::SPB,  G3KH::TPB,  G3KH::EPB,
+  G3KH::SPB,  G3KH::TPB,  G3KH::EPB,
   G3KH::R1B,  G3KH::R2B,  G3KH::R6B,  G3KH::R7B,
   G3KH::R8B,  G3KH::R9B,  G3KH::R10B, G3KH::R11B,
   G3KH::R12B, G3KH::R13B, G3KH::R14B, G3KH::R15B

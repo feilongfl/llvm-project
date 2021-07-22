@@ -283,15 +283,15 @@ let isCall = 1,
     Uses = [SP] in {
   def CALLi     : II16i<0b101,
                         (outs), (ins i16imm:$imm),
-                        "call\t$imm", [(G3KHcall imm:$imm)]>;
+                        "jarl\t$imm", [(G3KHcall imm:$imm)]>;
   def CALLr     : II16r<0b101,
                         (outs), (ins GR16:$rs),
-                        "call\t$rs", [(G3KHcall GR16:$rs)]>;
+                        "jarl\t$rs", [(G3KHcall GR16:$rs)]>;
   def CALLm     : II16m<0b101,
                         (outs), (ins memsrc:$src),
-                        "call\t$src", [(G3KHcall (load addr:$src))]>;
-  def CALLn     : II16n<0b101, (outs), (ins indreg:$rs), "call\t$rs", []>;
-  def CALLp     : II16p<0b101, (outs), (ins postreg:$rs), "call\t$rs", []>;
+                        "jarl\t$src", [(G3KHcall (load addr:$src))]>;
+  def CALLn     : II16n<0b101, (outs), (ins indreg:$rs), "jarl\t$rs", []>;
+  def CALLp     : II16p<0b101, (outs), (ins postreg:$rs), "jarl\t$rs", []>;
 }
 
 //===----------------------------------------------------------------------===//
@@ -300,16 +300,16 @@ let isCall = 1,
 let Defs = [SP], Uses = [SP], hasSideEffects = 0 in {
 let mayLoad = 1 in
 def POP16r   : IForm16<0b0100, DstReg, SrcPostInc, 2,
-                       (outs GR16:$rd), (ins), "pop\t$rd", []> {
+                       (outs GR16:$rd), (ins), "popsp\t$rd", []> {
   let DecoderNamespace = "Delta";
   let rs = 1;
 }
 
 let mayStore = 1 in
-def PUSH8r :  II8r<0b100, (outs), (ins GR8:$rs), "push.b\t$rs", []>;
-def PUSH16r : II16r<0b100, (outs), (ins GR16:$rs), "push\t$rs", []>;
-def PUSH16c : II16c<0b100, (outs), (ins cg16imm:$imm), "push\t$imm", []>;
-def PUSH16i : II16i<0b100, (outs), (ins i16imm:$imm), "push\t$imm", []>;
+def PUSH8r :  II8r<0b100, (outs), (ins GR8:$rs), "pushsp\t$rs", []>;
+def PUSH16r : II16r<0b100, (outs), (ins GR16:$rs), "pushsp\t$rs", []>;
+def PUSH16c : II16c<0b100, (outs), (ins cg16imm:$imm), "pushsp\t$imm", []>;
+def PUSH16i : II16i<0b100, (outs), (ins i16imm:$imm), "pushsp\t$imm", []>;
 }
 
 //===----------------------------------------------------------------------===//

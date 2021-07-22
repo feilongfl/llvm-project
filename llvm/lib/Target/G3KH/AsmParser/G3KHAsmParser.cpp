@@ -557,7 +557,7 @@ static unsigned convertGR16ToGR8(unsigned Reg) {
   switch (Reg) {
   default:
     llvm_unreachable("Unknown GR16 register");
-  case G3KH::PC:  return G3KH::PCB;
+  // case G3KH::PC:  return G3KH::PCB;
   case G3KH::SP:  return G3KH::SPB;
   case G3KH::EP:  return G3KH::EPB;
   case G3KH::TP:  return G3KH::TPB;
