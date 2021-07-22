@@ -36,35 +36,49 @@ G3KHRegisterInfo::G3KHRegisterInfo()
 
 const MCPhysReg*
 G3KHRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
-  const G3KHFrameLowering *TFI = getFrameLowering(*MF);
+  // const G3KHFrameLowering *TFI = getFrameLowering(*MF);
   const Function* F = &MF->getFunction();
   static const MCPhysReg CalleeSavedRegs[] = {
-    G3KH::R1, G3KH::R2, G3KH::R6, G3KH::R7,
-    G3KH::R8, G3KH::R9, G3KH::R10,
+    G3KH::R6, G3KH::R7, G3KH::R8, G3KH::R9,
+    G3KH::R10, G3KH::R11, G3KH::R12,G3KH::R13,
+    G3KH::R14, G3KH::R15, G3KH::R16,G3KH::R17,
+    G3KH::R18, G3KH::R19, G3KH::R20,G3KH::R21,
+    G3KH::R22, G3KH::R23, G3KH::R24,G3KH::R25,
+    G3KH::R26, G3KH::R27, G3KH::R28,G3KH::R29,
     0
   };
-  static const MCPhysReg CalleeSavedRegsFP[] = {
-    G3KH::R2, G3KH::R6, G3KH::R7,
-    G3KH::R8, G3KH::R9, G3KH::R10,
-    0
-  };
+  // static const MCPhysReg CalleeSavedRegsFP[] = {
+  //   G3KH::R6, G3KH::R7, G3KH::R8, G3KH::R9,
+  //   G3KH::R10, G3KH::R11, G3KH::R12,G3KH::R13,
+  //   G3KH::R14, G3KH::R15, G3KH::R16,G3KH::R17,
+  //   G3KH::R18, G3KH::R19, G3KH::R20,G3KH::R21,
+  //   G3KH::R22, G3KH::R23, G3KH::R24,G3KH::R25,
+  //   G3KH::R26, G3KH::R27, G3KH::R28,G3KH::R29,
+  //   0
+  // };
   static const MCPhysReg CalleeSavedRegsIntr[] = {
-    G3KH::R1,  G3KH::R2,  G3KH::R6,  G3KH::R7,
-    G3KH::R8,  G3KH::R9,  G3KH::R10, G3KH::R11,
-    G3KH::R12, G3KH::R13, G3KH::R14, G3KH::R15,
+    G3KH::R6, G3KH::R7, G3KH::R8, G3KH::R9,
+    G3KH::R10, G3KH::R11, G3KH::R12,G3KH::R13,
+    G3KH::R14, G3KH::R15, G3KH::R16,G3KH::R17,
+    G3KH::R18, G3KH::R19, G3KH::R20,G3KH::R21,
+    G3KH::R22, G3KH::R23, G3KH::R24,G3KH::R25,
+    G3KH::R26, G3KH::R27, G3KH::R28,G3KH::R29,
     0
   };
-  static const MCPhysReg CalleeSavedRegsIntrFP[] = {
-    G3KH::R2,  G3KH::R6,  G3KH::R7,
-    G3KH::R8,  G3KH::R9,  G3KH::R10, G3KH::R11,
-    G3KH::R12, G3KH::R13, G3KH::R14, G3KH::R15,
-    0
-  };
+  // static const MCPhysReg CalleeSavedRegsIntrFP[] = {
+  //   G3KH::R6, G3KH::R7, G3KH::R8, G3KH::R9,
+  //   G3KH::R10, G3KH::R11, G3KH::R12,G3KH::R13,
+  //   G3KH::R14, G3KH::R15, G3KH::R16,G3KH::R17,
+  //   G3KH::R18, G3KH::R19, G3KH::R20,G3KH::R21,
+  //   G3KH::R22, G3KH::R23, G3KH::R24,G3KH::R25,
+  //   G3KH::R26, G3KH::R27, G3KH::R28,G3KH::R29,
+  //   0
+  // };
 
-  if (TFI->hasFP(*MF))
-    return (F->getCallingConv() == CallingConv::G3KH_INTR ?
-            CalleeSavedRegsIntrFP : CalleeSavedRegsFP);
-  else
+  // if (TFI->hasFP(*MF))
+    // return (F->getCallingConv() == CallingConv::G3KH_INTR ?
+            // CalleeSavedRegsIntrFP : CalleeSavedRegsFP);
+  // else
     return (F->getCallingConv() == CallingConv::G3KH_INTR ?
             CalleeSavedRegsIntr : CalleeSavedRegs);
 
@@ -72,23 +86,32 @@ G3KHRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
 
 BitVector G3KHRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   BitVector Reserved(getNumRegs());
-  const G3KHFrameLowering *TFI = getFrameLowering(MF);
+  // const G3KHFrameLowering *TFI = getFrameLowering(MF);
 
   // Mark 4 special registers with subregisters as reserved.
-  Reserved.set(G3KH::PCB);
+  Reserved.set(G3KH::R0B);
+  Reserved.set(G3KH::R1B);
+  Reserved.set(G3KH::R2B);
   Reserved.set(G3KH::SPB);
+  Reserved.set(G3KH::GPB);
   Reserved.set(G3KH::TPB);
   Reserved.set(G3KH::EPB);
-  Reserved.set(G3KH::PC);
+  Reserved.set(G3KH::LPB);
+  Reserved.set(G3KH::R0);
+  Reserved.set(G3KH::R1);
+  Reserved.set(G3KH::R2);
   Reserved.set(G3KH::SP);
+  Reserved.set(G3KH::GP);
   Reserved.set(G3KH::TP);
   Reserved.set(G3KH::EP);
+  Reserved.set(G3KH::LP);
+  Reserved.set(G3KH::PC);
 
   // Mark frame pointer as reserved if needed.
-  if (TFI->hasFP(MF)) {
-    Reserved.set(G3KH::R1B);
-    Reserved.set(G3KH::R1);
-  }
+  // if (TFI->hasFP(MF)) {
+  //   Reserved.set(G3KH::R1B);
+  //   Reserved.set(G3KH::R1);
+  // }
 
   return Reserved;
 }

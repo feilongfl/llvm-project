@@ -1297,7 +1297,7 @@ SDValue G3KHTargetLowering::LowerFRAMEADDR(SDValue Op,
   SDLoc dl(Op);  // FIXME probably not meaningful
   unsigned Depth = cast<ConstantSDNode>(Op.getOperand(0))->getZExtValue();
   SDValue FrameAddr = DAG.getCopyFromReg(DAG.getEntryNode(), dl,
-                                         G3KH::R1, VT);
+                                         G3KH::PC, VT);
   while (Depth--)
     FrameAddr = DAG.getLoad(VT, dl, DAG.getEntryNode(), FrameAddr,
                             MachinePointerInfo());
@@ -1575,7 +1575,7 @@ G3KHTargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
   //  thisMBB:
   //  ...
   //   TrueVal = ...
-  //   cmpTY ccX, r1, r2
+  //   cmpTY ccX, PC, r2
   //   jCC copy1MBB
   //   fallthrough --> copy0MBB
   MachineBasicBlock *thisMBB = BB;

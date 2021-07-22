@@ -32,7 +32,6 @@ class G3KHRegWithSubregs<bits<5> num, string n, list<Register> subregs,
 //  Registers
 //===----------------------------------------------------------------------===//
 
-def PCB  : G3KHReg<0,  "pc">;
 def R0B  : G3KHReg<0,  "r0", ["zero"]>;
 def R1B  : G3KHReg<1,  "r1">;
 def R2B  : G3KHReg<2,  "r2">;
@@ -65,11 +64,15 @@ def R28B : G3KHReg<28, "r28">;
 def R29B : G3KHReg<29, "r29">;
 def EPB : G3KHReg<30, "r30", ["ep"]>;
 def LPB : G3KHReg<31, "r31", ["lp"]>;
+// def PCB  : G3KHReg<32,  "pc">;
+def PC : Register<"pc"> {
+   let Namespace = "G3KH";
+}
+
 
 def subreg_8bit : SubRegIndex<8> { let Namespace = "G3KH"; }
 
 let SubRegIndices = [subreg_8bit] in {
-def PC  : G3KHRegWithSubregs<0,  "pc",  [PCB]>;
 def R0  : G3KHRegWithSubregs<0,  "r0",  [R0B], ["zero"]>;
 def R1  : G3KHRegWithSubregs<1,  "r1",  [R1B]>;
 def R2  : G3KHRegWithSubregs<2,  "r2",  [R2B]>;
@@ -114,7 +117,7 @@ def GR8 : RegisterClass<"G3KH", [i8], 8,
    // rtos usage
    R2B,
    // Volatile, but not allocable
-   PCB, SPB, GPB, TPB, EPB, LPB )>;
+   SPB, GPB, TPB, EPB, LPB )>;
 
 def GR16 : RegisterClass<"G3KH", [i16], 16,
    // Volatile registers
@@ -126,7 +129,7 @@ def GR16 : RegisterClass<"G3KH", [i16], 16,
    // rtos usage
    R2,
    // Volatile, but not allocable
-   PC, SP, GP, TP, EP, LP )>;
+   SP, GP, TP, EP, LP )>;
 
 // def GR32 : RegisterClass<"G3KH", [i32], 32,
 //    // Volatile registers
