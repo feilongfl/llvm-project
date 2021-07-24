@@ -144,6 +144,38 @@ class VIForm6<bits<6> opcode,
 }
 
 // todo: G3KH 32-bit load/store instruction (Format VII)
+class VIIForm<bits<6> opcode, 
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 4, asmstr> {
+  let Pattern = pattern;
+
+  bits<5> reg1;
+  bits<5> reg2;
+  bits<16> disp16;
+
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-17} = disp16{15-1};
+  let Inst{16} = disp16{0};
+}
+class VIIForm2<bits<6> opcode, 
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 4, asmstr> {
+  let Pattern = pattern;
+
+  bits<5> reg1;
+  bits<5> reg2;
+  bits<16> disp16;
+  bit sub_opcode;
+
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-17} = disp16{15-1};
+  let Inst{16} = sub_opcode;
+}
+
 // todo: G3KH Bit manipulation instruction (Format VIII)
 // todo: G3KH Extended-1 instruction (Format IX)
 // todo: G3KH Extended-2 instruction (Format X)
@@ -169,6 +201,43 @@ class XIForm<bits<6> opcode,
 // todo: G3KH Extended-4 instruction (Format XII)
 // todo: G3KH Stack manipulation instruction (Format XIII)
 // todo: G3KH 48-bit load/store instruction (Format XIV)
+class XIVForm<bits<6> opcode, 
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 6, asmstr> {
+  let Pattern = pattern;
+
+  bits<5> reg1;
+  bits<5> reg3;
+  bits<23> disp23;
+  bits<9> sub_opcode;
+
+  let Inst{15-11}  = sub_opcode{4-0};
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-27} = reg3;
+  let Inst{26-20} = disp23{6-0};
+  let Inst{19-16} = sub_opcode{8-5};
+  let Inst{47-32} = disp23{22-7};
+}
+class XIVForm2<bits<6> opcode, 
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 6, asmstr> {
+  let Pattern = pattern;
+
+  bits<5> reg1;
+  bits<5> reg3;
+  bits<23> disp23;
+  bits<9> sub_opcode;
+
+  let Inst{15-11}  = sub_opcode{4-0};
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-27} = reg3;
+  let Inst{26-21} = disp23{6-1};
+  let Inst{20} = 0;
+  let Inst{19-16} = sub_opcode{8-5};
+  let Inst{47-32} = disp23{22-7};
+}
 
 // Pseudo instructions
 class Pseudo<dag outs, dag ins, string asmstr, list<dag> pattern>

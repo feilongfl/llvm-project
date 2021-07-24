@@ -36,8 +36,60 @@ def jmptarget : Operand<OtherVT> {
 }
 
 //===----------------------------------------------------------------------===//
-//  Control Flow Instructions...
-//
+//  G3KH Instructions
+//  ref: Renesas R01US0165EJ0120 Rev. 1.20
+//===--------------------7.2 BASIC  instructions---------------------------===//
+//===--------------------7.2.1(1) Load instructions------------------------===//
+class LDST_VIIForm<bits<6> opcode, string asmstr>
+  : VIIForm<opcode, 
+            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr, []> ;
+class LDST_VIIForm2<bits<6> opcode,bit sub_opcode1, string asmstr>
+  : VIIForm2<opcode,
+            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr, []> {
+    let sub_opcode = sub_opcode1;
+}
+class LDST_XIVForm<bits<6> opcode,bits<5> sub_opcode1,bits<4> sub_opcode2, string asmstr>
+  : XIVForm<opcode, 
+            (outs), (ins i32imm:$disp23, GR32:$reg1, GR32:$reg3), asmstr, []> {
+  let sub_opcode{4-0} = sub_opcode1{4-0};
+  let sub_opcode{8-5} = sub_opcode2{3-0};
+}
+class LDST_XIVForm2<bits<6> opcode,bits<5> sub_opcode1,bits<4> sub_opcode2, string asmstr>
+  : XIVForm2<opcode, 
+            (outs), (ins i32imm:$disp23, GR32:$reg1, GR32:$reg3), asmstr, []> {
+  let sub_opcode{4-0} = sub_opcode1{4-0};
+  let sub_opcode{8-5} = sub_opcode2{3-0};
+}
+//  7.2.1(1)(a) LD instructions
+def LDB_VII : LDST_VIIForm<0b111000, "LD.B\t$disp16[$reg1],$reg2">;
+def LDB_XIV : LDST_XIVForm<0b111100, 0b00000, 0b0101, "LD.B\t$disp23[$reg1],$reg3">;
+def LDBU_VII : LDST_VIIForm2<0b111000, 1, "LD.BU\t$disp16[$reg1],$reg2">;
+def LDBU_XIV : LDST_XIVForm<0b111101, 0b00000, 0b0101, "LD.BU\t$disp23[$reg1],$reg3">;
+def LDDW_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b1001, "LD.DW\t$disp23[$reg1],$reg3">;
+def LDH_VII : LDST_VIIForm2<0b111001, 0, "LD.H\t$disp16[$reg1],$reg2">;
+def LDH_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b0111, "LD.H\t$disp23[$reg1],$reg3">;
+def LDHU_VII : LDST_VIIForm2<0b111111, 1, "LD.HU\t$disp16[$reg1],$reg2">;
+def LDHU_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b0111, "LD.HU\t$disp23[$reg1],$reg3">;
+def LDW_VII : LDST_VIIForm2<0b111001, 1, "LD.W\t$disp16[$reg1],$reg2">;
+def LDW_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b1001, "LD.W\t$disp23[$reg1],$reg3">;
+//  7.2.1(1)(b) SLD instructions
+//===--------------------7.2.1(2) Store instructions-----------------------===//
+//  7.2.1(2)(a) ST instructions
+//  7.2.1(2)(b) SST instructions
+//===--------------------7.2.1(3) Multiply instructions--------------------===//
+//===--------------------7.2.1(4) Multiply-accumulate instructions---------===//
+//===--------------------7.2.1(5) Arithmetic instructions------------------===//
+//===--------------------7.2.1(6) Conditional arithmetic instructions------===//
+//===--------------------7.2.1(7) Saturated operation instructions---------===//
+//===--------------------7.2.1(8) Logical instructions---------------------===//
+//===--------------------7.2.1(9) Data manipulation instructions-----------===//
+//===--------------------7.2.1(10) Bit search instructions-----------------===//
+//===--------------------7.2.1(11) Divide instructions---------------------===//
+//===--------------------7.2.1(12) High-speed divide instructions----------===//
+//===--------------------7.2.1(13) Branch instructions---------------------===//
+//===--------------------7.2.1(14) Loop instructions-----------------------===//
+//===--------------------7.2.1(15) Bit manipulation instructions-----------===//
+//===--------------------7.2.1(16) Special instructions--------------------===//
 
 let isBranch = 1, isTerminator = 1 in {
 
