@@ -42,396 +42,100 @@ class G3KHInst<dag outs, dag ins, int size, string asmstr> : Instruction {
   let Size = size;
 }
 
-// G3KH Double Operand (Format I) Instructions
-class IForm<bits<4> opcode, DestMode ad, bit bw, SourceMode as, int size,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, size, asmstr> {
-  let Pattern = pattern;
+//===----------------------------------------------------------------------===//
+//  G3KH Instructions Format
+//  ref: Renesas R01US0165EJ0120 Rev. 1.20 Section 7.1.1
 
-  bits<4> rs;
-  bits<4> rd;
-
-  let Inst{15-12} = opcode;
-  let Inst{11-8}  = rs;
-  let Inst{7}     = ad.Value;
-  let Inst{6}     = bw;
-  let Inst{5-4}   = as.Value;
-  let Inst{3-0}   = rd;
-}
-
-// 8 bit IForm instructions
-class IForm8<bits<4> opcode, DestMode dest, SourceMode src, int size,
-             dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm<opcode, dest, 1, src, size, outs, ins, asmstr, pattern>;
-
-class I8rr<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstReg, SrcReg, 2, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Alpha";
-}
-
-class I8ri<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstReg, SrcImm, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<16> imm;
-  let Inst{31-16} = imm;
-  let rs = 0b0000;
-}
-
-class I8rc<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, 2, asmstr> {
-  let DecoderNamespace = "Beta";
-  let Pattern = pattern;
-
-  bits<6> imm;
-  bits<4> rd;
-
-  let Inst{15-12} = opcode;
-  let Inst{11-8}  = imm{3-0};
-  let Inst{7}     = DstReg.Value;
-  let Inst{6}     = 1;
-  let Inst{5-4}   = imm{5-4};
-  let Inst{3-0}   = rd;
-}
-
-class I8rm<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstReg, SrcMem, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<20> src;
-  let rs = src{3-0};
-  let Inst{31-16} = src{19-4};
-}
-
-class I8rn<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstReg, SrcIndReg, 2, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-}
-
-class I8rp<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstReg, SrcPostInc, 2, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-}
-
-class I8mr<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstMem, SrcReg, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Alpha";
-  bits<20> dst;
-  let rd = dst{3-0};
-  let Inst{31-16} = dst{19-4};
-}
-
-class I8mi<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstMem, SrcImm, 6, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<16> imm;
-  bits<20> dst;
-  let rs = 0b0000;
-  let Inst{31-16} = imm;
-  let rd = dst{3-0};
-  let Inst{47-32} = dst{19-4};
-}
-
-class I8mc<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, 4, asmstr> {
-  let DecoderNamespace = "Beta";
-  let Pattern = pattern;
-
-  bits<6> imm;
-  bits<20> dst;
-
-  let Inst{31-16} = dst{19-4};
-  let Inst{15-12} = opcode;
-  let Inst{11-8}  = imm{3-0};
-  let Inst{7}     = DstMem.Value;
-  let Inst{6}     = 1;
-  let Inst{5-4}   = imm{5-4};
-  let Inst{3-0}   = dst{3-0};
-}
-
-class I8mm<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstMem, SrcMem, 6, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<20> src;
-  bits<20> dst;
-  let rs = src{3-0};
-  let Inst{31-16} = src{19-4};
-  let rd = dst{3-0};
-  let Inst{47-32} = dst{19-4};
-}
-
-class I8mn<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstMem, SrcIndReg, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-  bits<20> dst;
-  let rd = dst{3-0};
-  let Inst{31-16} = dst{19-4};
-}
-
-class I8mp<bits<4> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm8<opcode, DstMem, SrcPostInc, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-  bits<20> dst;
-  let rd = dst{3-0};
-  let Inst{31-16} = dst{19-4};
-}
-
-// 16 bit IForm instructions
-class IForm16<bits<4> opcode, DestMode dest, SourceMode src, int size,
-              dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm<opcode, dest, 0, src, size, outs, ins, asmstr, pattern>;
-
-class I16rr<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstReg, SrcReg, 2, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Alpha";
-}
-
-class I16ri<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstReg, SrcImm, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<16> imm;
-  let Inst{31-16} = imm;
-  let rs = 0b0000;
-}
-
-class I16rc<bits<4> opcode,
+// G3KH reg-reg instruction (Format I)
+class IForm<bits<6> opcode, 
             dag outs, dag ins, string asmstr, list<dag> pattern>
   : G3KHInst<outs, ins, 2, asmstr> {
-  let DecoderNamespace = "Beta";
   let Pattern = pattern;
 
-  bits<6> imm;
-  bits<4> rd;
+  bits<5> reg1;
+  bits<5> reg2;
 
-  let Inst{15-12} = opcode;
-  let Inst{11-8}  = imm{3-0};
-  let Inst{7}     = DstReg.Value;
-  let Inst{6}     = 0;
-  let Inst{5-4}   = imm{5-4};
-  let Inst{3-0}   = rd;
+
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0}   = reg1;
 }
 
-class I16rm<bits<4> opcode,
+// G3KH reg-imm instruction (Format II)
+class IIForm<bits<6> opcode, 
             dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstReg, SrcMem, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<20> src;
-  let rs = src{3-0};
-  let Inst{31-16} = src{19-4};
+  : G3KHInst<outs, ins, 2, asmstr> {
+  let Pattern = pattern;
+
+  bits<5> imm;
+  bits<5> reg2;
+
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0}   = imm;
 }
 
-class I16rn<bits<4> opcode,
+// G3KH conditional branch instruction (Format III)
+class IIIForm<bits<4> opcode, int size,
             dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstReg, SrcIndReg, 2, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
+  : G3KHInst<outs, ins, 2, asmstr> {
+  let Pattern = pattern;
+
+  bits<8> disp;
+  bits<4> cond;
+
+  let Inst{15-11}  = disp{7-3};
+  let Inst{10-7} = opcode;
+  let Inst{6-4} = disp{2-0};
+  let Inst{3-0}   = cond;
 }
 
-class I16rp<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstReg, SrcPostInc, 2, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-}
-
-class I16mr<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstMem, SrcReg, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Alpha";
-  bits<20> dst;
-  let rd = dst{3-0};
-  let Inst{31-16} = dst{19-4};
-}
-
-class I16mi<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstMem, SrcImm, 6, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<16> imm;
-  bits<20> dst;
-  let Inst{31-16} = imm;
-  let rs = 0b0000;
-  let rd = dst{3-0};
-  let Inst{47-32} = dst{19-4};
-}
-
-class I16mc<bits<4> opcode,
+// todo: G3KH 16-bit load/store instruction (Format IV)
+// todo: G3KH Jump instruction (Format V)
+class VForm<bits<5> opcode,
             dag outs, dag ins, string asmstr, list<dag> pattern>
   : G3KHInst<outs, ins, 4, asmstr> {
-  let DecoderNamespace = "Beta";
   let Pattern = pattern;
 
-  bits<6> imm;
-  bits<20> dst;
+  bits<5> reg2;
+  bits<22> disp;
 
-  let Inst{31-16} = dst{19-4};
-  let Inst{15-12} = opcode;
-  let Inst{11-8}  = imm{3-0};
-  let Inst{7}     = DstMem.Value;
-  let Inst{6}     = 0;
-  let Inst{5-4}   = imm{5-4};
-  let Inst{3-0}   = dst{3-0};
+  let Inst{15-11}  = reg2;
+  let Inst{10-6} = opcode;
+  let Inst{5-0} = disp{21-16};
+  let Inst{31-17} = disp{15-1};
+  let Inst{16} = 0;
 }
 
-class I16mm<bits<4> opcode,
+// todo: G3KH 3-Operand instruction (Format VI)
+
+
+// todo: G3KH 32-bit load/store instruction (Format VII)
+// todo: G3KH Bit manipulation instruction (Format VIII)
+// todo: G3KH Extended-1 instruction (Format IX)
+// todo: G3KH Extended-2 instruction (Format X)
+// G3KH Extended-3 instruction (Format XI)
+class XIForm<bits<6> opcode, int size,
             dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstMem, SrcMem, 6, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Gamma";
-  bits<20> src;
-  bits<20> dst;
-  let rs = src{3-0};
-  let Inst{31-16} = src{19-4};
-  let rd = dst{3-0};
-  let Inst{47-32} = dst{19-4};
-}
-
-class I16mn<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstMem, SrcIndReg, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-  bits<20> dst;
-  let rd = dst{3-0};
-  let Inst{31-16} = dst{19-4};
-}
-
-class I16mp<bits<4> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IForm16<opcode, DstMem, SrcPostInc, 4, outs, ins, asmstr, pattern> {
-  let DecoderNamespace = "Delta";
-  bits<20> dst;
-  let rd = dst{3-0};
-  let Inst{31-16} = dst{19-4};
-}
-
-// G3KH Single Operand (Format II) Instructions
-class IIForm<bits<3> opcode, bit bw, SourceMode as, int size,
-             dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, size, asmstr> {
+  : G3KHInst<outs, ins, 4, asmstr> {
   let Pattern = pattern;
 
-  bits<4> rs;
+  bits<5> reg1;
+  bits<5> reg2;
+  bits<5> reg3;
+  bits<10> sub_opcode;
 
-  let Inst{15-10} = 0b000100;
-  let Inst{9-7}   = opcode;
-  let Inst{6}     = bw;
-  let Inst{5-4}   = as.Value;
-  let Inst{3-0}   = rs;
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-27} = reg3;
+  let Inst{26-17} = sub_opcode;
+  let Inst{16} = 0;
 }
 
-// 8 bit IIForm instructions
-class IIForm8<bits<3> opcode, SourceMode src, int size,
-              dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm<opcode, 1, src, size, outs, ins, asmstr, pattern>;
-
-class II8r<bits<3> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm8<opcode, SrcReg, 2, outs, ins, asmstr, pattern>;
-
-class II8m<bits<3> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm8<opcode, SrcMem, 4, outs, ins, asmstr, pattern> {
-  bits<20> src;
-  let rs = src{3-0};
-  let Inst{31-16} = src{19-4};
-}
-
-class II8i<bits<3> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm8<opcode, SrcImm, 4, outs, ins, asmstr, pattern> {
-  bits<16> imm;
-  let rs = 0b0000;
-  let Inst{31-16} = imm;
-}
-
-class II8c<bits<3> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, 2, asmstr> {
-  let Pattern = pattern;
-
-  bits<6> imm;
-
-  let Inst{15-10} = 0b000100;
-  let Inst{9-7}   = opcode;
-  let Inst{6}     = 1;
-  let Inst{5-0}   = imm;
-}
-
-class II8n<bits<3> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm8<opcode, SrcIndReg, 2, outs, ins, asmstr, pattern>;
-
-class II8p<bits<3> opcode,
-           dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm8<opcode, SrcPostInc, 2, outs, ins, asmstr, pattern>;
-
-// 16 bit IIForm instructions
-class IIForm16<bits<3> opcode, SourceMode src, int size,
-               dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm<opcode, 0, src, size, outs, ins, asmstr, pattern>;
-
-class II16r<bits<3> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm16<opcode, SrcReg, 2, outs, ins, asmstr, pattern>;
-
-class II16m<bits<3> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm16<opcode, SrcMem, 4, outs, ins, asmstr, pattern> {
-  bits<20> src;
-  let rs = src{3-0};
-  let Inst{31-16} = src{19-4};
-}
-
-class II16i<bits<3> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm16<opcode, SrcImm, 4, outs, ins, asmstr, pattern> {
-  bits<16> imm;
-  let rs = 0b0000;
-  let Inst{31-16} = imm;
-}
-
-class II16c<bits<3> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, 2, asmstr> {
-  let Pattern = pattern;
-
-  bits<6> imm;
-
-  let Inst{15-10} = 0b000100;
-  let Inst{9-7}   = opcode;
-  let Inst{6}     = 0;
-  let Inst{5-0}   = imm;
-}
-
-class II16n<bits<3> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm16<opcode, SrcIndReg, 2, outs, ins, asmstr, pattern>;
-
-class II16p<bits<3> opcode,
-            dag outs, dag ins, string asmstr, list<dag> pattern>
-  : IIForm16<opcode, SrcPostInc, 2, outs, ins, asmstr, pattern>;
-
-// G3KH Conditional Jumps Instructions
-class CJForm<dag outs, dag ins, string asmstr, list<dag> pattern>
-  : G3KHInst<outs, ins, 2, asmstr> {
-  let Pattern = pattern;
-  
-  bits<3> cond;
-  bits<10> dst;
-
-  let Inst{15-13} = 0b001;
-  let Inst{12-10} = cond;
-  let Inst{9-0} = dst;
-}
+// todo: G3KH Extended-4 instruction (Format XII)
+// todo: G3KH Stack manipulation instruction (Format XIII)
+// todo: G3KH 48-bit load/store instruction (Format XIV)
 
 // Pseudo instructions
 class Pseudo<dag outs, dag ins, string asmstr, list<dag> pattern>
