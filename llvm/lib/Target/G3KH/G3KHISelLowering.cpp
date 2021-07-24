@@ -1431,45 +1431,45 @@ G3KHTargetLowering::EmitShiftInstr(MachineInstr &MI,
   const TargetRegisterClass * RC;
   switch (MI.getOpcode()) {
   default: llvm_unreachable("Invalid shift opcode!");
-  case G3KH::Shl8:
-    Opc = G3KH::ADD8rr;
-    RC = &G3KH::GR8RegClass;
-    break;
-  case G3KH::Shl16:
-    Opc = G3KH::ADD16rr;
-    RC = &G3KH::GR16RegClass;
-    break;
-  case G3KH::Sra8:
-    Opc = G3KH::RRA8r;
-    RC = &G3KH::GR8RegClass;
-    break;
-  case G3KH::Sra16:
-    Opc = G3KH::RRA16r;
-    RC = &G3KH::GR16RegClass;
-    break;
-  case G3KH::Srl8:
-    ClearCarry = true;
-    Opc = G3KH::RRC8r;
-    RC = &G3KH::GR8RegClass;
-    break;
-  case G3KH::Srl16:
-    ClearCarry = true;
-    Opc = G3KH::RRC16r;
-    RC = &G3KH::GR16RegClass;
-    break;
-  case G3KH::Rrcl8:
-  case G3KH::Rrcl16: {
-    BuildMI(*BB, MI, dl, TII.get(G3KH::BIC16rc), G3KH::EP)
-      .addReg(G3KH::EP).addImm(1);
-    Register SrcReg = MI.getOperand(1).getReg();
-    Register DstReg = MI.getOperand(0).getReg();
-    unsigned RrcOpc = MI.getOpcode() == G3KH::Rrcl16
-                    ? G3KH::RRC16r : G3KH::RRC8r;
-    BuildMI(*BB, MI, dl, TII.get(RrcOpc), DstReg)
-      .addReg(SrcReg);
-    MI.eraseFromParent(); // The pseudo instruction is gone now.
-    return BB;
-  }
+  // case G3KH::Shl8:
+  //   Opc = G3KH::ADD8rr;
+  //   RC = &G3KH::GR8RegClass;
+  //   break;
+  // case G3KH::Shl16:
+  //   Opc = G3KH::ADD16rr;
+  //   RC = &G3KH::GR16RegClass;
+  //   break;
+  // case G3KH::Sra8:
+  //   Opc = G3KH::RRA8r;
+  //   RC = &G3KH::GR8RegClass;
+  //   break;
+  // case G3KH::Sra16:
+  //   Opc = G3KH::RRA16r;
+  //   RC = &G3KH::GR16RegClass;
+  //   break;
+  // case G3KH::Srl8:
+  //   ClearCarry = true;
+  //   Opc = G3KH::RRC8r;
+  //   RC = &G3KH::GR8RegClass;
+  //   break;
+  // case G3KH::Srl16:
+  //   ClearCarry = true;
+  //   Opc = G3KH::RRC16r;
+  //   RC = &G3KH::GR16RegClass;
+  //   break;
+  // case G3KH::Rrcl8:
+  // case G3KH::Rrcl16: {
+  //   BuildMI(*BB, MI, dl, TII.get(G3KH::BIC16rc), G3KH::EP)
+  //     .addReg(G3KH::EP).addImm(1);
+  //   Register SrcReg = MI.getOperand(1).getReg();
+  //   Register DstReg = MI.getOperand(0).getReg();
+  //   unsigned RrcOpc = MI.getOpcode() == G3KH::Rrcl16
+  //                   ? G3KH::RRC16r : G3KH::RRC8r;
+  //   BuildMI(*BB, MI, dl, TII.get(RrcOpc), DstReg)
+  //     .addReg(SrcReg);
+  //   MI.eraseFromParent(); // The pseudo instruction is gone now.
+  //   return BB;
+  // }
   }
 
   const BasicBlock *LLVM_BB = BB->getBasicBlock();
@@ -1505,44 +1505,44 @@ G3KHTargetLowering::EmitShiftInstr(MachineInstr &MI,
   // BB:
   // cmp 0, N
   // je RemBB
-  BuildMI(BB, dl, TII.get(G3KH::CMP8ri))
-    .addReg(ShiftAmtSrcReg).addImm(0);
-  BuildMI(BB, dl, TII.get(G3KH::JCC))
-    .addMBB(RemBB)
-    .addImm(G3KHCC::COND_E);
+  // BuildMI(BB, dl, TII.get(G3KH::CMP8ri))
+  //   .addReg(ShiftAmtSrcReg).addImm(0);
+  // BuildMI(BB, dl, TII.get(G3KH::JCC))
+  //   .addMBB(RemBB)
+  //   .addImm(G3KHCC::COND_E);
 
   // LoopBB:
   // ShiftReg = phi [%SrcReg, BB], [%ShiftReg2, LoopBB]
   // ShiftAmt = phi [%N, BB],      [%ShiftAmt2, LoopBB]
   // ShiftReg2 = shift ShiftReg
   // ShiftAmt2 = ShiftAmt - 1;
-  BuildMI(LoopBB, dl, TII.get(G3KH::PHI), ShiftReg)
-    .addReg(SrcReg).addMBB(BB)
-    .addReg(ShiftReg2).addMBB(LoopBB);
-  BuildMI(LoopBB, dl, TII.get(G3KH::PHI), ShiftAmtReg)
-    .addReg(ShiftAmtSrcReg).addMBB(BB)
-    .addReg(ShiftAmtReg2).addMBB(LoopBB);
-  if (ClearCarry)
-    BuildMI(LoopBB, dl, TII.get(G3KH::BIC16rc), G3KH::EP)
-      .addReg(G3KH::EP).addImm(1);
-  if (Opc == G3KH::ADD8rr || Opc == G3KH::ADD16rr)
-    BuildMI(LoopBB, dl, TII.get(Opc), ShiftReg2)
-      .addReg(ShiftReg)
-      .addReg(ShiftReg);
-  else
-    BuildMI(LoopBB, dl, TII.get(Opc), ShiftReg2)
-      .addReg(ShiftReg);
-  BuildMI(LoopBB, dl, TII.get(G3KH::SUB8ri), ShiftAmtReg2)
-    .addReg(ShiftAmtReg).addImm(1);
-  BuildMI(LoopBB, dl, TII.get(G3KH::JCC))
-    .addMBB(LoopBB)
-    .addImm(G3KHCC::COND_NE);
+  // BuildMI(LoopBB, dl, TII.get(G3KH::PHI), ShiftReg)
+  //   .addReg(SrcReg).addMBB(BB)
+  //   .addReg(ShiftReg2).addMBB(LoopBB);
+  // BuildMI(LoopBB, dl, TII.get(G3KH::PHI), ShiftAmtReg)
+  //   .addReg(ShiftAmtSrcReg).addMBB(BB)
+  //   .addReg(ShiftAmtReg2).addMBB(LoopBB);
+  // if (ClearCarry)
+  //   BuildMI(LoopBB, dl, TII.get(G3KH::BIC16rc), G3KH::EP)
+  //     .addReg(G3KH::EP).addImm(1);
+  // if (Opc == G3KH::ADD8rr || Opc == G3KH::ADD16rr)
+  //   BuildMI(LoopBB, dl, TII.get(Opc), ShiftReg2)
+  //     .addReg(ShiftReg)
+  //     .addReg(ShiftReg);
+  // else
+  //   BuildMI(LoopBB, dl, TII.get(Opc), ShiftReg2)
+  //     .addReg(ShiftReg);
+  // BuildMI(LoopBB, dl, TII.get(G3KH::SUB8ri), ShiftAmtReg2)
+  //   .addReg(ShiftAmtReg).addImm(1);
+  // BuildMI(LoopBB, dl, TII.get(G3KH::JCC))
+  //   .addMBB(LoopBB)
+  //   .addImm(G3KHCC::COND_NE);
 
   // RemBB:
   // DestReg = phi [%SrcReg, BB], [%ShiftReg, LoopBB]
-  BuildMI(*RemBB, RemBB->begin(), dl, TII.get(G3KH::PHI), DstReg)
-    .addReg(SrcReg).addMBB(BB)
-    .addReg(ShiftReg2).addMBB(LoopBB);
+  // BuildMI(*RemBB, RemBB->begin(), dl, TII.get(G3KH::PHI), DstReg)
+  //   .addReg(SrcReg).addMBB(BB)
+  //   .addReg(ShiftReg2).addMBB(LoopBB);
 
   MI.eraseFromParent(); // The pseudo instruction is gone now.
   return RemBB;
@@ -1551,70 +1551,5 @@ G3KHTargetLowering::EmitShiftInstr(MachineInstr &MI,
 MachineBasicBlock *
 G3KHTargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
                                                   MachineBasicBlock *BB) const {
-  unsigned Opc = MI.getOpcode();
-
-  if (Opc == G3KH::Shl8  || Opc == G3KH::Shl16 ||
-      Opc == G3KH::Sra8  || Opc == G3KH::Sra16 ||
-      Opc == G3KH::Srl8  || Opc == G3KH::Srl16 ||
-      Opc == G3KH::Rrcl8 || Opc == G3KH::Rrcl16)
-    return EmitShiftInstr(MI, BB);
-
-  const TargetInstrInfo &TII = *BB->getParent()->getSubtarget().getInstrInfo();
-  DebugLoc dl = MI.getDebugLoc();
-
-  assert((Opc == G3KH::Select16 || Opc == G3KH::Select8) &&
-         "Unexpected instr type to insert");
-
-  // To "insert" a SELECT instruction, we actually have to insert the diamond
-  // control-flow pattern.  The incoming instruction knows the destination vreg
-  // to set, the condition code register to branch on, the true/false values to
-  // select between, and a branch opcode to use.
-  const BasicBlock *LLVM_BB = BB->getBasicBlock();
-  MachineFunction::iterator I = ++BB->getIterator();
-
-  //  thisMBB:
-  //  ...
-  //   TrueVal = ...
-  //   cmpTY ccX, PC, r2
-  //   jCC copy1MBB
-  //   fallthrough --> copy0MBB
-  MachineBasicBlock *thisMBB = BB;
-  MachineFunction *F = BB->getParent();
-  MachineBasicBlock *copy0MBB = F->CreateMachineBasicBlock(LLVM_BB);
-  MachineBasicBlock *copy1MBB = F->CreateMachineBasicBlock(LLVM_BB);
-  F->insert(I, copy0MBB);
-  F->insert(I, copy1MBB);
-  // Update machine-CFG edges by transferring all successors of the current
-  // block to the new block which will contain the Phi node for the select.
-  copy1MBB->splice(copy1MBB->begin(), BB,
-                   std::next(MachineBasicBlock::iterator(MI)), BB->end());
-  copy1MBB->transferSuccessorsAndUpdatePHIs(BB);
-  // Next, add the true and fallthrough blocks as its successors.
-  BB->addSuccessor(copy0MBB);
-  BB->addSuccessor(copy1MBB);
-
-  BuildMI(BB, dl, TII.get(G3KH::JCC))
-      .addMBB(copy1MBB)
-      .addImm(MI.getOperand(3).getImm());
-
-  //  copy0MBB:
-  //   %FalseValue = ...
-  //   # fallthrough to copy1MBB
-  BB = copy0MBB;
-
-  // Update machine-CFG edges
-  BB->addSuccessor(copy1MBB);
-
-  //  copy1MBB:
-  //   %Result = phi [ %FalseValue, copy0MBB ], [ %TrueValue, thisMBB ]
-  //  ...
-  BB = copy1MBB;
-  BuildMI(*BB, BB->begin(), dl, TII.get(G3KH::PHI), MI.getOperand(0).getReg())
-      .addReg(MI.getOperand(2).getReg())
-      .addMBB(copy0MBB)
-      .addReg(MI.getOperand(1).getReg())
-      .addMBB(thisMBB);
-
-  MI.eraseFromParent(); // The pseudo instruction is gone now.
   return BB;
 }

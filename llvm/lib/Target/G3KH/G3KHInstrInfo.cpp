@@ -30,7 +30,7 @@ using namespace llvm;
 void G3KHInstrInfo::anchor() {}
 
 G3KHInstrInfo::G3KHInstrInfo(G3KHSubtarget &STI)
-  : G3KHGenInstrInfo(G3KH::ADJCALLSTACKDOWN, G3KH::ADJCALLSTACKUP),
+  : G3KHGenInstrInfo(),
     RI() {}
 
 void G3KHInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
@@ -48,15 +48,15 @@ void G3KHInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
       MachineMemOperand::MOStore, MFI.getObjectSize(FrameIdx),
       MFI.getObjectAlign(FrameIdx));
 
-  if (RC == &G3KH::GR16RegClass)
-    BuildMI(MBB, MI, DL, get(G3KH::MOV16mr))
-      .addFrameIndex(FrameIdx).addImm(0)
-      .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
-  else if (RC == &G3KH::GR8RegClass)
-    BuildMI(MBB, MI, DL, get(G3KH::MOV8mr))
-      .addFrameIndex(FrameIdx).addImm(0)
-      .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
-  else
+  // if (RC == &G3KH::GR16RegClass)
+  //   BuildMI(MBB, MI, DL, get(G3KH::MOV16mr))
+  //     .addFrameIndex(FrameIdx).addImm(0)
+  //     .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
+  // else if (RC == &G3KH::GR8RegClass)
+  //   BuildMI(MBB, MI, DL, get(G3KH::MOV8mr))
+  //     .addFrameIndex(FrameIdx).addImm(0)
+  //     .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
+  // else
     llvm_unreachable("Cannot store this register to stack slot!");
 }
 
@@ -75,15 +75,15 @@ void G3KHInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
       MachineMemOperand::MOLoad, MFI.getObjectSize(FrameIdx),
       MFI.getObjectAlign(FrameIdx));
 
-  if (RC == &G3KH::GR16RegClass)
-    BuildMI(MBB, MI, DL, get(G3KH::MOV16rm))
-      .addReg(DestReg, getDefRegState(true)).addFrameIndex(FrameIdx)
-      .addImm(0).addMemOperand(MMO);
-  else if (RC == &G3KH::GR8RegClass)
-    BuildMI(MBB, MI, DL, get(G3KH::MOV8rm))
-      .addReg(DestReg, getDefRegState(true)).addFrameIndex(FrameIdx)
-      .addImm(0).addMemOperand(MMO);
-  else
+  // if (RC == &G3KH::GR16RegClass)
+  //   BuildMI(MBB, MI, DL, get(G3KH::MOV16rm))
+  //     .addReg(DestReg, getDefRegState(true)).addFrameIndex(FrameIdx)
+  //     .addImm(0).addMemOperand(MMO);
+  // else if (RC == &G3KH::GR8RegClass)
+  //   BuildMI(MBB, MI, DL, get(G3KH::MOV8rm))
+  //     .addReg(DestReg, getDefRegState(true)).addFrameIndex(FrameIdx)
+  //     .addImm(0).addMemOperand(MMO);
+  // else
     llvm_unreachable("Cannot store this register to stack slot!");
 }
 
@@ -92,11 +92,11 @@ void G3KHInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                   const DebugLoc &DL, MCRegister DestReg,
                                   MCRegister SrcReg, bool KillSrc) const {
   unsigned Opc;
-  if (G3KH::GR16RegClass.contains(DestReg, SrcReg))
-    Opc = G3KH::MOV16rr;
-  else if (G3KH::GR8RegClass.contains(DestReg, SrcReg))
-    Opc = G3KH::MOV8rr;
-  else
+  // if (G3KH::GR16RegClass.contains(DestReg, SrcReg))
+  //   Opc = G3KH::MOV16rr;
+  // else if (G3KH::GR8RegClass.contains(DestReg, SrcReg))
+  //   Opc = G3KH::MOV8rr;
+  // else
     llvm_unreachable("Impossible reg-to-reg copy");
 
   BuildMI(MBB, I, DL, get(Opc), DestReg)
@@ -114,11 +114,11 @@ unsigned G3KHInstrInfo::removeBranch(MachineBasicBlock &MBB,
     --I;
     if (I->isDebugInstr())
       continue;
-    if (I->getOpcode() != G3KH::JMP &&
-        I->getOpcode() != G3KH::JCC &&
-        I->getOpcode() != G3KH::Br &&
-        I->getOpcode() != G3KH::Bm)
-      break;
+    // if (I->getOpcode() != G3KH::JMP &&
+    //     I->getOpcode() != G3KH::JCC &&
+    //     I->getOpcode() != G3KH::Br &&
+    //     I->getOpcode() != G3KH::Bm)
+    //   break;
     // Remove the branch.
     I->eraseFromParent();
     I = MBB.end();
@@ -184,38 +184,38 @@ bool G3KHInstrInfo::analyzeBranch(MachineBasicBlock &MBB,
       return true;
 
     // Cannot handle indirect branches.
-    if (I->getOpcode() == G3KH::Br ||
-        I->getOpcode() == G3KH::Bm)
-      return true;
+    // if (I->getOpcode() == G3KH::Br ||
+    //     I->getOpcode() == G3KH::Bm)
+    //   return true;
 
-    // Handle unconditional branches.
-    if (I->getOpcode() == G3KH::JMP) {
-      if (!AllowModify) {
-        TBB = I->getOperand(0).getMBB();
-        continue;
-      }
+    // // Handle unconditional branches.
+    // if (I->getOpcode() == G3KH::JMP) {
+    //   if (!AllowModify) {
+    //     TBB = I->getOperand(0).getMBB();
+    //     continue;
+    //   }
 
-      // If the block has any instructions after a JMP, delete them.
-      while (std::next(I) != MBB.end())
-        std::next(I)->eraseFromParent();
-      Cond.clear();
-      FBB = nullptr;
+    //   // If the block has any instructions after a JMP, delete them.
+    //   while (std::next(I) != MBB.end())
+    //     std::next(I)->eraseFromParent();
+    //   Cond.clear();
+    //   FBB = nullptr;
 
-      // Delete the JMP if it's equivalent to a fall-through.
-      if (MBB.isLayoutSuccessor(I->getOperand(0).getMBB())) {
-        TBB = nullptr;
-        I->eraseFromParent();
-        I = MBB.end();
-        continue;
-      }
+    //   // Delete the JMP if it's equivalent to a fall-through.
+    //   if (MBB.isLayoutSuccessor(I->getOperand(0).getMBB())) {
+    //     TBB = nullptr;
+    //     I->eraseFromParent();
+    //     I = MBB.end();
+    //     continue;
+    //   }
 
-      // TBB is used to indicate the unconditinal destination.
-      TBB = I->getOperand(0).getMBB();
-      continue;
-    }
+    //   // TBB is used to indicate the unconditinal destination.
+    //   TBB = I->getOperand(0).getMBB();
+    //   continue;
+    // }
 
     // Handle conditional branches.
-    assert(I->getOpcode() == G3KH::JCC && "Invalid conditional branch");
+    // assert(I->getOpcode() == G3KH::JCC && "Invalid conditional branch");
     G3KHCC::CondCodes BranchCode =
       static_cast<G3KHCC::CondCodes>(I->getOperand(1).getImm());
     if (BranchCode == G3KHCC::COND_INVALID)
@@ -262,23 +262,23 @@ unsigned G3KHInstrInfo::insertBranch(MachineBasicBlock &MBB,
          "G3KH branch conditions have one component!");
   assert(!BytesAdded && "code size not handled");
 
-  if (Cond.empty()) {
-    // Unconditional branch?
-    assert(!FBB && "Unconditional branch with multiple successors!");
-    BuildMI(&MBB, DL, get(G3KH::JMP)).addMBB(TBB);
-    return 1;
-  }
+  // if (Cond.empty()) {
+  //   // Unconditional branch?
+  //   assert(!FBB && "Unconditional branch with multiple successors!");
+  //   BuildMI(&MBB, DL, get(G3KH::JMP)).addMBB(TBB);
+  //   return 1;
+  // }
 
-  // Conditional branch.
+  // // Conditional branch.
   unsigned Count = 0;
-  BuildMI(&MBB, DL, get(G3KH::JCC)).addMBB(TBB).addImm(Cond[0].getImm());
-  ++Count;
+  // BuildMI(&MBB, DL, get(G3KH::JCC)).addMBB(TBB).addImm(Cond[0].getImm());
+  // ++Count;
 
-  if (FBB) {
-    // Two-way Conditional branch. Insert the second branch.
-    BuildMI(&MBB, DL, get(G3KH::JMP)).addMBB(FBB);
-    ++Count;
-  }
+  // if (FBB) {
+  //   // Two-way Conditional branch. Insert the second branch.
+  //   BuildMI(&MBB, DL, get(G3KH::JMP)).addMBB(FBB);
+  //   ++Count;
+  // }
   return Count;
 }
 

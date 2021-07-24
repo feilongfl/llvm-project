@@ -149,29 +149,29 @@ G3KHRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   // Fold imm into offset
   Offset += MI.getOperand(FIOperandNum + 1).getImm();
 
-  if (MI.getOpcode() == G3KH::ADDframe) {
-    // This is actually "load effective address" of the stack slot
-    // instruction. We have only two-address instructions, thus we need to
-    // expand it into mov + add
-    const TargetInstrInfo &TII = *MF.getSubtarget().getInstrInfo();
+  // if (MI.getOpcode() == G3KH::ADDframe) {
+  //   // This is actually "load effective address" of the stack slot
+  //   // instruction. We have only two-address instructions, thus we need to
+  //   // expand it into mov + add
+  //   const TargetInstrInfo &TII = *MF.getSubtarget().getInstrInfo();
 
-    MI.setDesc(TII.get(G3KH::MOV16rr));
-    MI.getOperand(FIOperandNum).ChangeToRegister(BasePtr, false);
+  //   MI.setDesc(TII.get(G3KH::MOV16rr));
+  //   MI.getOperand(FIOperandNum).ChangeToRegister(BasePtr, false);
 
-    if (Offset == 0)
-      return;
+  //   if (Offset == 0)
+  //     return;
 
-    // We need to materialize the offset via add instruction.
-    Register DstReg = MI.getOperand(0).getReg();
-    if (Offset < 0)
-      BuildMI(MBB, std::next(II), dl, TII.get(G3KH::SUB16ri), DstReg)
-        .addReg(DstReg).addImm(-Offset);
-    else
-      BuildMI(MBB, std::next(II), dl, TII.get(G3KH::ADD16ri), DstReg)
-        .addReg(DstReg).addImm(Offset);
+  //   // We need to materialize the offset via add instruction.
+  //   Register DstReg = MI.getOperand(0).getReg();
+  //   if (Offset < 0)
+  //     BuildMI(MBB, std::next(II), dl, TII.get(G3KH::SUB16ri), DstReg)
+  //       .addReg(DstReg).addImm(-Offset);
+  //   else
+  //     BuildMI(MBB, std::next(II), dl, TII.get(G3KH::ADD16ri), DstReg)
+  //       .addReg(DstReg).addImm(Offset);
 
-    return;
-  }
+  //   return;
+  // }
 
   MI.getOperand(FIOperandNum).ChangeToRegister(BasePtr, false);
   MI.getOperand(FIOperandNum + 1).ChangeToImmediate(Offset);

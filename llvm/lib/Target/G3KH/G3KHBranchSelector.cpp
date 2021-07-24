@@ -121,7 +121,7 @@ bool G3KHBSel::expandBranches(OffsetVector &BlockOffsets) {
       MBBStartOffset += TII->getInstSizeInBytes(*MI);
 
       // If this instruction is not a short branch then skip it.
-      if (MI->getOpcode() != G3KH::JCC && MI->getOpcode() != G3KH::JMP) {
+      if (MI->getOpcode() != G3KH::JMP_I && MI->getOpcode() != G3KH::JMP_VI) {
         continue;
       }
 
@@ -143,66 +143,14 @@ bool G3KHBSel::expandBranches(OffsetVector &BlockOffsets) {
                         << BranchDistance << "\n");
 
       // If JCC is not the last instruction we need to split the MBB.
-      if (MI->getOpcode() == G3KH::JCC && std::next(MI) != EE) {
-
-        LLVM_DEBUG(dbgs() << "  Found a basic block that needs to be split, "
-                          << printMBBReference(*MBB) << "\n");
-
-        // Create a new basic block.
-        MachineBasicBlock *NewBB =
-            MF->CreateMachineBasicBlock(MBB->getBasicBlock());
-        MF->insert(std::next(MBB), NewBB);
-
-        // Splice the instructions following MI over to the NewBB.
-        NewBB->splice(NewBB->end(), &*MBB, std::next(MI), MBB->end());
-
-        // Update the successor lists.
-        for (MachineBasicBlock *Succ : MBB->successors()) {
-          if (Succ == DestBB) {
-            continue;
-          }
-          MBB->replaceSuccessor(Succ, NewBB);
-          NewBB->addSuccessor(Succ);
-        }
-
-        // We introduced a new MBB so all following blocks should be numbered
-        // and measured again.
-        measureFunction(BlockOffsets, &*MBB);
-
-        ++NumSplit;
-
-        // It may be not necessary to start all over at this point, but it's
-        // safer do this anyway.
-        return true;
-      }
 
       MachineInstr &OldBranch = *MI;
       DebugLoc dl = OldBranch.getDebugLoc();
       int InstrSizeDiff = -TII->getInstSizeInBytes(OldBranch);
 
-      if (MI->getOpcode() == G3KH::JCC) {
-        MachineBasicBlock *NextMBB = &*std::next(MBB);
-        assert(MBB->isSuccessor(NextMBB) &&
-               "This block must have a layout successor!");
-
-        // The BCC operands are:
-        // 0. Target MBB
-        // 1. G3KH branch predicate
-        SmallVector<MachineOperand, 1> Cond;
-        Cond.push_back(MI->getOperand(1));
-
-        // Jump over the long branch on the opposite condition
-        TII->reverseBranchCondition(Cond);
-        MI = BuildMI(*MBB, MI, dl, TII->get(G3KH::JCC))
-                 .addMBB(NextMBB)
-                 .add(Cond[0]);
-        InstrSizeDiff += TII->getInstSizeInBytes(*MI);
-        ++MI;
-      }
-
       // Unconditional branch to the real destination.
-      MI = BuildMI(*MBB, MI, dl, TII->get(G3KH::Bi)).addMBB(DestBB);
-      InstrSizeDiff += TII->getInstSizeInBytes(*MI);
+      // MI = BuildMI(*MBB, MI, dl, TII->get(G3KH::Bi)).addMBB(DestBB);
+      // InstrSizeDiff += TII->getInstSizeInBytes(*MI);
 
       // Remove the old branch from the function.
       OldBranch.eraseFromParent();

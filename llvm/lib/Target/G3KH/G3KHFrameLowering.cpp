@@ -63,8 +63,8 @@ void G3KHFrameLowering::emitPrologue(MachineFunction &MF,
     MFI.setOffsetAdjustment(-NumBytes);
 
     // Save FP into the appropriate stack slot...
-    BuildMI(MBB, MBBI, DL, TII.get(G3KH::PUSH16r))
-      .addReg(G3KH::EP, RegState::Kill);
+    // BuildMI(MBB, MBBI, DL, TII.get(G3KH::PUSH16r))
+      // .addReg(G3KH::EP, RegState::Kill);
 
     // Update FP with the new base value...
     // BuildMI(MBB, MBBI, DL, TII.get(G3KH::MOV16rr), G3KH::EP)
@@ -79,8 +79,8 @@ void G3KHFrameLowering::emitPrologue(MachineFunction &MF,
     NumBytes = StackSize - G3KHFI->getCalleeSavedFrameSize();
 
   // Skip the callee-saved push instructions.
-  while (MBBI != MBB.end() && (MBBI->getOpcode() == G3KH::PUSH16r))
-    ++MBBI;
+  // while (MBBI != MBB.end() && (MBBI->getOpcode() == G3KH::PUSH16r))
+    // ++MBBI;
 
   if (MBBI != MBB.end())
     DL = MBBI->getDebugLoc();
@@ -93,13 +93,13 @@ void G3KHFrameLowering::emitPrologue(MachineFunction &MF,
     // instruction, merge the two instructions.
     // mergeSPUpdatesDown(MBB, MBBI, &NumBytes);
 
-    if (NumBytes) {
-      MachineInstr *MI =
-        BuildMI(MBB, MBBI, DL, TII.get(G3KH::SUB16ri), G3KH::SP)
-        .addReg(G3KH::SP).addImm(NumBytes);
-      // The SRW implicit def is dead.
-      MI->getOperand(3).setIsDead();
-    }
+    // if (NumBytes) {
+    //   MachineInstr *MI =
+    //     BuildMI(MBB, MBBI, DL, TII.get(G3KH::SUB16ri), G3KH::SP)
+    //     .addReg(G3KH::SP).addImm(NumBytes);
+    //   // The SRW implicit def is dead.
+    //   MI->getOperand(3).setIsDead();
+    // }
   }
 }
 
@@ -114,12 +114,12 @@ void G3KHFrameLowering::emitEpilogue(MachineFunction &MF,
   unsigned RetOpcode = MBBI->getOpcode();
   DebugLoc DL = MBBI->getDebugLoc();
 
-  switch (RetOpcode) {
-  case G3KH::RET:
-  case G3KH::RETI: break;  // These are ok
-  default:
-    llvm_unreachable("Can only insert epilog into returning blocks");
-  }
+  // switch (RetOpcode) {
+  // case G3KH::RET:
+  // case G3KH::RETI: break;  // These are ok
+  // default:
+  //   llvm_unreachable("Can only insert epilog into returning blocks");
+  // }
 
   // Get the number of bytes to allocate from the FrameInfo
   uint64_t StackSize = MFI.getStackSize();
@@ -132,18 +132,18 @@ void G3KHFrameLowering::emitEpilogue(MachineFunction &MF,
     NumBytes = FrameSize - CSSize;
 
     // pop FP.
-    BuildMI(MBB, MBBI, DL, TII.get(G3KH::POP16r), G3KH::EP);
+    // BuildMI(MBB, MBBI, DL, TII.get(G3KH::POP16r), G3KH::EP);
   } else
     NumBytes = StackSize - CSSize;
 
   // Skip the callee-saved pop instructions.
-  while (MBBI != MBB.begin()) {
-    MachineBasicBlock::iterator PI = std::prev(MBBI);
-    unsigned Opc = PI->getOpcode();
-    if (Opc != G3KH::POP16r && !PI->isTerminator())
-      break;
-    --MBBI;
-  }
+  // while (MBBI != MBB.begin()) {
+  //   MachineBasicBlock::iterator PI = std::prev(MBBI);
+  //   unsigned Opc = PI->getOpcode();
+  //   // if (Opc != G3KH::POP16r && !PI->isTerminator())
+  //     // break;
+  //   --MBBI;
+  // }
 
   DL = MBBI->getDebugLoc();
 
@@ -152,27 +152,27 @@ void G3KHFrameLowering::emitEpilogue(MachineFunction &MF,
   //if (NumBytes || MFI.hasVarSizedObjects())
   //  mergeSPUpdatesUp(MBB, MBBI, StackPtr, &NumBytes);
 
-  if (MFI.hasVarSizedObjects()) {
-    BuildMI(MBB, MBBI, DL,
-            TII.get(G3KH::MOV16rr), G3KH::SP).addReg(G3KH::EP);
-    if (CSSize) {
-      MachineInstr *MI =
-        BuildMI(MBB, MBBI, DL,
-                TII.get(G3KH::SUB16ri), G3KH::SP)
-        .addReg(G3KH::SP).addImm(CSSize);
-      // The SRW implicit def is dead.
-      MI->getOperand(3).setIsDead();
-    }
-  } else {
-    // adjust stack pointer back: SP += numbytes
-    if (NumBytes) {
-      MachineInstr *MI =
-        BuildMI(MBB, MBBI, DL, TII.get(G3KH::ADD16ri), G3KH::SP)
-        .addReg(G3KH::SP).addImm(NumBytes);
-      // The SRW implicit def is dead.
-      MI->getOperand(3).setIsDead();
-    }
-  }
+  // if (MFI.hasVarSizedObjects()) {
+  //   BuildMI(MBB, MBBI, DL,
+  //           TII.get(G3KH::MOV16rr), G3KH::SP).addReg(G3KH::EP);
+  //   if (CSSize) {
+  //     MachineInstr *MI =
+  //       BuildMI(MBB, MBBI, DL,
+  //               TII.get(G3KH::SUB16ri), G3KH::SP)
+  //       .addReg(G3KH::SP).addImm(CSSize);
+  //     // The SRW implicit def is dead.
+  //     MI->getOperand(3).setIsDead();
+  //   }
+  // } else {
+  //   // adjust stack pointer back: SP += numbytes
+  //   if (NumBytes) {
+  //     MachineInstr *MI =
+  //       BuildMI(MBB, MBBI, DL, TII.get(G3KH::ADD16ri), G3KH::SP)
+  //       .addReg(G3KH::SP).addImm(NumBytes);
+  //     // The SRW implicit def is dead.
+  //     MI->getOperand(3).setIsDead();
+  //   }
+  // }
 }
 
 // FIXME: Can we eleminate these in favour of generic code?
@@ -194,8 +194,8 @@ bool G3KHFrameLowering::spillCalleeSavedRegisters(
     unsigned Reg = CSI[i-1].getReg();
     // Add the callee-saved register as live-in. It's killed at the spill.
     MBB.addLiveIn(Reg);
-    BuildMI(MBB, MI, DL, TII.get(G3KH::PUSH16r))
-      .addReg(Reg, RegState::Kill);
+    // BuildMI(MBB, MI, DL, TII.get(G3KH::PUSH16r))
+    //   .addReg(Reg, RegState::Kill);
   }
   return true;
 }
@@ -213,7 +213,7 @@ bool G3KHFrameLowering::restoreCalleeSavedRegisters(
   const TargetInstrInfo &TII = *MF.getSubtarget().getInstrInfo();
 
   for (unsigned i = 0, e = CSI.size(); i != e; ++i)
-    BuildMI(MBB, MI, DL, TII.get(G3KH::POP16r), CSI[i].getReg());
+    // BuildMI(MBB, MI, DL, TII.get(G3KH::POP16r), CSI[i].getReg());
 
   return true;
 }
@@ -238,19 +238,19 @@ MachineBasicBlock::iterator G3KHFrameLowering::eliminateCallFramePseudoInstr(
 
       MachineInstr *New = nullptr;
       if (Old.getOpcode() == TII.getCallFrameSetupOpcode()) {
-        New =
-            BuildMI(MF, Old.getDebugLoc(), TII.get(G3KH::SUB16ri), G3KH::SP)
-                .addReg(G3KH::SP)
-                .addImm(Amount);
+        // New =
+        //     BuildMI(MF, Old.getDebugLoc(), TII.get(G3KH::SUB16ri), G3KH::SP)
+        //         .addReg(G3KH::SP)
+        //         .addImm(Amount);
       } else {
         assert(Old.getOpcode() == TII.getCallFrameDestroyOpcode());
         // factor out the amount the callee already popped.
         Amount -= TII.getFramePoppedByCallee(Old);
-        if (Amount)
-          New = BuildMI(MF, Old.getDebugLoc(), TII.get(G3KH::ADD16ri),
-                        G3KH::SP)
-                    .addReg(G3KH::SP)
-                    .addImm(Amount);
+        // if (Amount)
+        //   New = BuildMI(MF, Old.getDebugLoc(), TII.get(G3KH::ADD16ri),
+        //                 G3KH::SP)
+        //             .addReg(G3KH::SP)
+        //             .addImm(Amount);
       }
 
       if (New) {
@@ -264,17 +264,17 @@ MachineBasicBlock::iterator G3KHFrameLowering::eliminateCallFramePseudoInstr(
   } else if (I->getOpcode() == TII.getCallFrameDestroyOpcode()) {
     // If we are performing frame pointer elimination and if the callee pops
     // something off the stack pointer, add it back.
-    if (uint64_t CalleeAmt = TII.getFramePoppedByCallee(*I)) {
-      MachineInstr &Old = *I;
-      MachineInstr *New =
-          BuildMI(MF, Old.getDebugLoc(), TII.get(G3KH::SUB16ri), G3KH::SP)
-              .addReg(G3KH::SP)
-              .addImm(CalleeAmt);
-      // The SRW implicit def is dead.
-      New->getOperand(3).setIsDead();
+    // if (uint64_t CalleeAmt = TII.getFramePoppedByCallee(*I)) {
+    //   MachineInstr &Old = *I;
+    //   MachineInstr *New =
+    //       BuildMI(MF, Old.getDebugLoc(), TII.get(G3KH::SUB16ri), G3KH::SP)
+    //           .addReg(G3KH::SP)
+    //           .addImm(CalleeAmt);
+    //   // The SRW implicit def is dead.
+    //   New->getOperand(3).setIsDead();
 
-      MBB.insert(I, New);
-    }
+    //   MBB.insert(I, New);
+    // }
   }
 
   return MBB.erase(I);
