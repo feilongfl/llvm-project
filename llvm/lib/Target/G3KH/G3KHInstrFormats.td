@@ -76,7 +76,7 @@ class IIForm<bits<6> opcode,
 }
 
 // G3KH conditional branch instruction (Format III)
-class IIIForm<bits<4> opcode, int size,
+class IIIForm<bits<4> opcode,
             dag outs, dag ins, string asmstr, list<dag> pattern>
   : G3KHInst<outs, ins, 2, asmstr> {
   let Pattern = pattern;
@@ -90,7 +90,46 @@ class IIIForm<bits<4> opcode, int size,
   let Inst{3-0}   = cond;
 }
 
-// todo: G3KH 16-bit load/store instruction (Format IV)
+// G3KH 16-bit load/store instruction (Format IV)
+class IVForm<bits<4> opcode,
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 2, asmstr> {
+  let Pattern = pattern;
+
+  bits<7> disp;
+  bits<5> reg2;
+
+  let Inst{15-11}  = reg2{4-0};
+  let Inst{10-7} = opcode;
+  let Inst{6-0} = disp{6-0};
+}
+class IVForm2<bits<4> opcode,
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 2, asmstr> {
+  let Pattern = pattern;
+
+  bits<7> disp;
+  bit sub_opcode;
+  bits<5> reg2;
+
+  let Inst{15-11}  = reg2{4-0};
+  let Inst{10-7} = opcode;
+  let Inst{6-1} = disp{6-1};
+  let Inst{0}   = sub_opcode;
+}
+class IVForm3<bits<7> opcode,
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 2, asmstr> {
+  let Pattern = pattern;
+
+  bits<4> disp;
+  bits<5> reg2;
+
+  let Inst{15-11}  = reg2{4-0};
+  let Inst{10-4} = opcode;
+  let Inst{3-0} = disp{3-0};
+}
+
 // G3KH Jump instruction (Format V)
 class VForm<bits<5> opcode,
             dag outs, dag ins, string asmstr, list<dag> pattern>

@@ -60,6 +60,20 @@ class LDST_XIVForm2<bits<6> opcode,bits<5> sub_opcode1,bits<4> sub_opcode2, stri
   let sub_opcode{4-0} = sub_opcode1{4-0};
   let sub_opcode{8-5} = sub_opcode2{3-0};
 }
+class SLDST_IVForm<bits<4> opcode, string asmstr>
+  : IVForm<opcode, 
+            (outs), (ins i32imm:$disp7, GR32:$reg2), asmstr#"\t$disp7[EP],$reg2", []> {
+}
+class SLDST_IVForm2<bits<4> opcode, bit sub_opcode1, string asmstr>
+  : IVForm2<opcode, 
+            (outs), (ins i32imm:$disp7, GR32:$reg2), asmstr#"\t$disp7[EP],$reg2", []> {
+  let sub_opcode = sub_opcode1;
+}
+class SLDST_IVForm3<bits<7> opcode, string asmstr>
+  : IVForm3<opcode, 
+            (outs), (ins i32imm:$disp7, GR32:$reg2), asmstr#"\t$disp7[EP],$reg2", []> {
+}
+
 //  7.2.1(1)(a) LD instructions
 def LDB_VII : LDST_VIIForm<0b111000, "LD.B">;
 def LDB_XIV : LDST_XIVForm<0b111100, 0b00000, 0b0101, "LD.B">;
@@ -73,6 +87,11 @@ def LDHU_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b0111, "LD.HU">;
 def LDW_VII : LDST_VIIForm2<0b111001, 1, "LD.W">;
 def LDW_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b1001, "LD.W">;
 //  7.2.1(1)(b) SLD instructions
+def SLDB_VII : SLDST_IVForm<0b0110, "SLD.B">;
+def SLDBU_VII : SLDST_IVForm3<0b0000110, "SLD.BU">;
+def SLDH_VII : SLDST_IVForm<0b1000, "SLD.H">;
+def SLDHU_VII : SLDST_IVForm3<0b0000111, "SLD.HU">;
+def SLDW_VII : SLDST_IVForm2<0b1010, 0, "SLD.W">;
 //===--------------------7.2.1(2) Store instructions-----------------------===//
 //  7.2.1(2)(a) ST instructions
 def STB_VII : LDST_VIIForm<0b111010, "ST.B">;
@@ -83,6 +102,9 @@ def STH_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b1101, "ST.H">;
 def STW_VII : LDST_VIIForm2<0b111011, 1, "ST.W">;
 def STW_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b1111, "ST.W">;
 //  7.2.1(2)(b) SST instructions
+def SSTB_VII : SLDST_IVForm<0b0111, "SLD.B">;
+def SSTH_VII : SLDST_IVForm<0b1001, "SLD.H">;
+def SSTW_VII : SLDST_IVForm2<0b1010, 1, "SLD.W">;
 //===--------------------7.2.1(3) Multiply instructions--------------------===//
 //===--------------------7.2.1(4) Multiply-accumulate instructions---------===//
 //===--------------------7.2.1(5) Arithmetic instructions------------------===//
