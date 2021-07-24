@@ -91,7 +91,7 @@ class IIIForm<bits<4> opcode, int size,
 }
 
 // todo: G3KH 16-bit load/store instruction (Format IV)
-// todo: G3KH Jump instruction (Format V)
+// G3KH Jump instruction (Format V)
 class VForm<bits<5> opcode,
             dag outs, dag ins, string asmstr, list<dag> pattern>
   : G3KHInst<outs, ins, 4, asmstr> {
@@ -107,8 +107,22 @@ class VForm<bits<5> opcode,
   let Inst{16} = 0;
 }
 
-// todo: G3KH 3-Operand instruction (Format VI)
+// G3KH 3-Operand instruction (Format VI)
+class VIForm<bits<6> opcode, 
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 4, asmstr> {
+  let Pattern = pattern;
 
+  bits<5> reg1;
+  bits<5> reg2;
+  bits<16> imm;
+
+
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-16} = imm;
+}
 
 // todo: G3KH 32-bit load/store instruction (Format VII)
 // todo: G3KH Bit manipulation instruction (Format VIII)

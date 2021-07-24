@@ -49,12 +49,12 @@ let isBarrier = 1 in {
     // let reg1 = 0b00000;
     let reg2 = 0b00000;
   }
-  def JMPVI : IForm<0b110111, (outs), (ins jmptarget:$dst),
-                   "jmp\t$dst",
-                   []> {
-    // let reg1 = 0b00000;
-    let reg2 = 0b00000;
-  }
+  // def JMPVI : VIForm<0b110111, (outs), (ins jmptarget:$dst),
+  //                  "jmp\t$dst",
+  //                  []> {
+  //   // let reg1 = 0b00000;
+  //   let reg2 = 0b00000;
+  // }
 }
 
 } // isBranch, isTerminator
