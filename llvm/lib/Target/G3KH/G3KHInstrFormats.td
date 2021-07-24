@@ -98,17 +98,17 @@ class VForm<bits<5> opcode,
   let Pattern = pattern;
 
   bits<5> reg2;
-  bits<22> disp;
+  bits<22> disp22;
 
   let Inst{15-11}  = reg2;
   let Inst{10-6} = opcode;
-  let Inst{5-0} = disp{21-16};
-  let Inst{31-17} = disp{15-1};
+  let Inst{5-0} = disp22{21-16};
+  let Inst{31-17} = disp22{15-1};
   let Inst{16} = 0;
 }
 
 // G3KH 3-Operand instruction (Format VI)
-class VIForm<bits<6> opcode, 
+class VIForm4<bits<6> opcode, 
             dag outs, dag ins, string asmstr, list<dag> pattern>
   : G3KHInst<outs, ins, 4, asmstr> {
   let Pattern = pattern;
@@ -124,12 +124,31 @@ class VIForm<bits<6> opcode,
   let Inst{31-16} = imm;
 }
 
+// Maybe manual have a miss that VI format not include `disp32` which used
+// by JMP/JR/JARL
+class VIForm6<bits<6> opcode, 
+            dag outs, dag ins, string asmstr, list<dag> pattern>
+  : G3KHInst<outs, ins, 6, asmstr> {
+  let Pattern = pattern;
+
+  bits<5> reg1;
+  bits<5> reg2;
+  bits<32> disp32;
+
+  let Inst{15-11}  = reg2;
+  let Inst{10-5} = opcode;
+  let Inst{4-0} = reg1;
+  let Inst{31-17} = disp32{15-1};
+  let Inst{16} = 0;
+  let Inst{47-32} = disp32{31-16};
+}
+
 // todo: G3KH 32-bit load/store instruction (Format VII)
 // todo: G3KH Bit manipulation instruction (Format VIII)
 // todo: G3KH Extended-1 instruction (Format IX)
 // todo: G3KH Extended-2 instruction (Format X)
 // G3KH Extended-3 instruction (Format XI)
-class XIForm<bits<6> opcode, int size,
+class XIForm<bits<6> opcode,
             dag outs, dag ins, string asmstr, list<dag> pattern>
   : G3KHInst<outs, ins, 4, asmstr> {
   let Pattern = pattern;
