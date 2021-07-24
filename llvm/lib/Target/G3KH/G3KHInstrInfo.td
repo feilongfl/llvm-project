@@ -42,39 +42,46 @@ def jmptarget : Operand<OtherVT> {
 //===--------------------7.2.1(1) Load instructions------------------------===//
 class LDST_VIIForm<bits<6> opcode, string asmstr>
   : VIIForm<opcode, 
-            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr, []> ;
+            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr#"\t$disp16[$reg1],$reg2", []> ;
 class LDST_VIIForm2<bits<6> opcode,bit sub_opcode1, string asmstr>
   : VIIForm2<opcode,
-            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr, []> {
+            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr#"\t$disp16[$reg1],$reg2", []> {
     let sub_opcode = sub_opcode1;
 }
 class LDST_XIVForm<bits<6> opcode,bits<5> sub_opcode1,bits<4> sub_opcode2, string asmstr>
   : XIVForm<opcode, 
-            (outs), (ins i32imm:$disp23, GR32:$reg1, GR32:$reg3), asmstr, []> {
+            (outs), (ins i32imm:$disp23, GR32:$reg1, GR32:$reg3), asmstr#"\t$disp23[$reg1],$reg3", []> {
   let sub_opcode{4-0} = sub_opcode1{4-0};
   let sub_opcode{8-5} = sub_opcode2{3-0};
 }
 class LDST_XIVForm2<bits<6> opcode,bits<5> sub_opcode1,bits<4> sub_opcode2, string asmstr>
   : XIVForm2<opcode, 
-            (outs), (ins i32imm:$disp23, GR32:$reg1, GR32:$reg3), asmstr, []> {
+            (outs), (ins i32imm:$disp23, GR32:$reg1, GR32:$reg3), asmstr#"\t$disp23[$reg1],$reg3", []> {
   let sub_opcode{4-0} = sub_opcode1{4-0};
   let sub_opcode{8-5} = sub_opcode2{3-0};
 }
 //  7.2.1(1)(a) LD instructions
-def LDB_VII : LDST_VIIForm<0b111000, "LD.B\t$disp16[$reg1],$reg2">;
-def LDB_XIV : LDST_XIVForm<0b111100, 0b00000, 0b0101, "LD.B\t$disp23[$reg1],$reg3">;
-def LDBU_VII : LDST_VIIForm2<0b111000, 1, "LD.BU\t$disp16[$reg1],$reg2">;
-def LDBU_XIV : LDST_XIVForm<0b111101, 0b00000, 0b0101, "LD.BU\t$disp23[$reg1],$reg3">;
-def LDDW_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b1001, "LD.DW\t$disp23[$reg1],$reg3">;
-def LDH_VII : LDST_VIIForm2<0b111001, 0, "LD.H\t$disp16[$reg1],$reg2">;
-def LDH_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b0111, "LD.H\t$disp23[$reg1],$reg3">;
-def LDHU_VII : LDST_VIIForm2<0b111111, 1, "LD.HU\t$disp16[$reg1],$reg2">;
-def LDHU_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b0111, "LD.HU\t$disp23[$reg1],$reg3">;
-def LDW_VII : LDST_VIIForm2<0b111001, 1, "LD.W\t$disp16[$reg1],$reg2">;
-def LDW_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b1001, "LD.W\t$disp23[$reg1],$reg3">;
+def LDB_VII : LDST_VIIForm<0b111000, "LD.B">;
+def LDB_XIV : LDST_XIVForm<0b111100, 0b00000, 0b0101, "LD.B">;
+def LDBU_VII : LDST_VIIForm2<0b111000, 1, "LD.BU">;
+def LDBU_XIV : LDST_XIVForm<0b111101, 0b00000, 0b0101, "LD.BU">;
+def LDDW_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b1001, "LD.DW">;
+def LDH_VII : LDST_VIIForm2<0b111001, 0, "LD.H">;
+def LDH_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b0111, "LD.H">;
+def LDHU_VII : LDST_VIIForm2<0b111111, 1, "LD.HU">;
+def LDHU_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b0111, "LD.HU">;
+def LDW_VII : LDST_VIIForm2<0b111001, 1, "LD.W">;
+def LDW_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b1001, "LD.W">;
 //  7.2.1(1)(b) SLD instructions
 //===--------------------7.2.1(2) Store instructions-----------------------===//
 //  7.2.1(2)(a) ST instructions
+def STB_VII : LDST_VIIForm<0b111010, "ST.B">;
+def STB_XIV : LDST_XIVForm<0b111100, 0b00000, 0b1101, "ST.B">;
+def STDW_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b1111, "ST.DW">;
+def STH_VII : LDST_VIIForm2<0b111011, 0, "ST.H">;
+def STH_XIV : LDST_XIVForm2<0b111101, 0b00000, 0b1101, "ST.H">;
+def STW_VII : LDST_VIIForm2<0b111011, 1, "ST.W">;
+def STW_XIV : LDST_XIVForm2<0b111100, 0b00000, 0b1111, "ST.W">;
 //  7.2.1(2)(b) SST instructions
 //===--------------------7.2.1(3) Multiply instructions--------------------===//
 //===--------------------7.2.1(4) Multiply-accumulate instructions---------===//
