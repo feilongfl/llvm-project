@@ -44,12 +44,12 @@ let isBranch = 1, isTerminator = 1 in {
 // Direct branch
 let isBarrier = 1 in {
   // Short branch
-  def JMPI : IForm<0b000011, (outs), (ins GR32:$reg1),
+  def JMP_I : IForm<0b000011, (outs), (ins GR32:$reg1),
                    "jmp\t$reg1",
                    []> {
     let reg2 = 0b00000;
   }
-  def JMPVI : VIForm6<0b110111, (outs), (ins GR32:$reg1, i32imm:$disp32),
+  def JMP_VI : VIForm6<0b110111, (outs), (ins GR32:$reg1, i32imm:$disp32),
                    "jmp\t$reg1,\t$disp32",
                    []> {
     let reg2 = 0b00000;
@@ -68,17 +68,17 @@ let isBarrier = 1 in {
 let isCall = 1,
     Defs = [R11, R12, R13, R14, R15, SP],
     Uses = [SP] in {
-  def JARLV : VForm<0b11110, (outs), (ins i22imm:$disp22, GR32:$reg2),
+  def JARL_V : VForm<0b11110, (outs), (ins i22imm:$disp22, GR32:$reg2),
                     "jarl\t$disp22,\t$reg2",
                     []>{
     // let reg2 = 0b00000;
   }
-  def JARLVI : VIForm6<0b010111, (outs), (ins i32imm:$disp32, GR32:$reg1),
+  def JARL_VI : VIForm6<0b010111, (outs), (ins i32imm:$disp32, GR32:$reg1),
                     "jarl32\t$disp32",
                     []>{
     let reg2 = 0b00000;
   }
-  def JARLXI : XIForm<0b111111, (outs), (ins GR32:$reg1, GR32:$reg3),
+  def JARL_XI : XIForm<0b111111, (outs), (ins GR32:$reg1, GR32:$reg3),
                     "jarl32\t$reg1,\t$reg3",
                     []>{
     let reg2 = 0b11000;
@@ -91,7 +91,7 @@ let isCall = 1,
 //
 let Defs = [SP], Uses = [SP], hasSideEffects = 0 in {
 let mayLoad = 1 in {
-def POPSPXI   : XIForm<0b111111, (outs GR32:$reg1, GR32:$reg3), (ins), 
+def POPSP_XI   : XIForm<0b111111, (outs GR32:$reg1, GR32:$reg3), (ins), 
                 "popsp\t$reg1,\t$reg3", []> {
     let reg2 = 0b01100;
     let sub_opcode = 0b0010110000;
@@ -100,7 +100,7 @@ def POPSPXI   : XIForm<0b111111, (outs GR32:$reg1, GR32:$reg3), (ins),
 }
 
 let mayStore = 1 in{
-def PUSHSPXI : XIForm<0b111111, (outs), (ins GR32:$reg1, GR32:$reg3),
+def PUSHSP_XI : XIForm<0b111111, (outs), (ins GR32:$reg1, GR32:$reg3),
                       "pushsp\t$reg1,\t$reg3",
                       []>{
     let reg2 = 0b01000;
