@@ -116,10 +116,6 @@ def SSTW_VII : SLDST_IVForm2<0b1010, 1, "SLD.W">;
 //===--------------------7.2.1(11) Divide instructions---------------------===//
 //===--------------------7.2.1(12) High-speed divide instructions----------===//
 //===--------------------7.2.1(13) Branch instructions---------------------===//
-//===--------------------7.2.1(14) Loop instructions-----------------------===//
-//===--------------------7.2.1(15) Bit manipulation instructions-----------===//
-//===--------------------7.2.1(16) Special instructions--------------------===//
-
 let isBranch = 1, isTerminator = 1 in {
 
 // Direct branch
@@ -139,7 +135,6 @@ let isBarrier = 1 in {
 
 } // isBranch, isTerminator
 
-//===----------------------------------------------------------------------===//
 //  Call Instructions...
 //
 // All calls clobber the non-callee saved registers. SPW is marked as
@@ -167,9 +162,9 @@ let isCall = 1,
   }
 }
 
-//===----------------------------------------------------------------------===//
-//  Miscellaneous Instructions...
-//
+//===--------------------7.2.1(14) Loop instructions-----------------------===//
+//===--------------------7.2.1(15) Bit manipulation instructions-----------===//
+//===--------------------7.2.1(16) Special instructions--------------------===//
 let Defs = [SP], Uses = [SP], hasSideEffects = 0 in {
 let mayLoad = 1 in {
 def POPSP_XI   : XIForm<0b111111, (outs GR32:$reg1, GR32:$reg3), (ins), 
