@@ -1,10 +1,3 @@
-// short test() {
-//     return 0;
-// }
-
-void main() {
-    // test();
-    // char a;
-
-    return;
+int main() {
+    return 0;
 }

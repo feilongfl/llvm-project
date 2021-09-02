@@ -24,6 +24,9 @@ include "G3KHInstrFormats.td"
 //===----------------------------------------------------------------------===//
 // G3KH Specific Node Definitions.
 //===----------------------------------------------------------------------===//
+def G3KHretflag  : SDNode<"G3KHISD::RET_FLAG", SDTNone,
+                       [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+
 
 //===----------------------------------------------------------------------===//
 // G3KH Operand Definitions.
