@@ -19,7 +19,7 @@ using namespace llvm;
 #define DEBUG_TYPE "g3kh-subtarget"
 
 static cl::opt<G3KHSubtarget::HWMultEnum>
-HWMultModeOption("mhwmult", cl::Hidden,
+HWMultModeOption("old-mhwmult", cl::Hidden,
            cl::desc("Hardware multiplier use mode for G3KH"),
            cl::init(G3KHSubtarget::NoHWMult),
            cl::values(

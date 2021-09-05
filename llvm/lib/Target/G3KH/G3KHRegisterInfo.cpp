@@ -119,7 +119,7 @@ BitVector G3KHRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
 const TargetRegisterClass *
 G3KHRegisterInfo::getPointerRegClass(const MachineFunction &MF, unsigned Kind)
                                                                          const {
-  return &G3KH::GR16RegClass;
+  return &G3KH::GR32RegClass;
 }
 
 void

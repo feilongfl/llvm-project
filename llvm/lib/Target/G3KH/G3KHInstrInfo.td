@@ -15,7 +15,9 @@ include "G3KHInstrFormats.td"
 //===----------------------------------------------------------------------===//
 // Type Constraints.
 //===----------------------------------------------------------------------===//
-
+class SDTCisI8<int OpNum> : SDTCisVT<OpNum, i8>;
+class SDTCisI16<int OpNum> : SDTCisVT<OpNum, i16>;
+class SDTCisI32<int OpNum> : SDTCisVT<OpNum, i32>;
 
 //===----------------------------------------------------------------------===//
 // Type Profiles.
@@ -26,11 +28,57 @@ include "G3KHInstrFormats.td"
 //===----------------------------------------------------------------------===//
 def G3KHretflag  : SDNode<"G3KHISD::RET_FLAG", SDTNone,
                        [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
-
+def G3KHretiflag : SDNode<"G3KHISD::RETI_FLAG", SDTNone,
+                       [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 
 //===----------------------------------------------------------------------===//
 // G3KH Operand Definitions.
 //===----------------------------------------------------------------------===//
+
+def MemAsmOperand : AsmOperandClass {
+  let Name = "Mem";
+}
+
+// Address operands
+def memsrc : Operand<i32> {
+  let PrintMethod = "printSrcMemOperand";
+  let MIOperandInfo = (ops GR32, i32imm);
+  let ParserMatchClass = MemAsmOperand;
+  let EncoderMethod = "getMemOpValue";
+  let DecoderMethod = "DecodeMemOperand";
+}
+
+def memdst : Operand<i32> {
+  let PrintMethod = "printSrcMemOperand";
+  let MIOperandInfo = (ops GR32, i32imm);
+  let ParserMatchClass = MemAsmOperand;
+  let EncoderMethod = "getMemOpValue";
+  let DecoderMethod = "DecodeMemOperand";
+}
+
+def IndRegAsmOperand : AsmOperandClass {
+  let Name = "IndReg";
+  let RenderMethod = "addRegOperands";
+}
+
+def indreg : Operand<i32> {
+  let PrintMethod = "printIndRegOperand";
+  let MIOperandInfo = (ops GR32);
+  let ParserMatchClass = IndRegAsmOperand;
+  let DecoderMethod = "DecodeGR32RegisterClass";
+}
+
+def PostIndRegAsmOperand : AsmOperandClass {
+  let Name = "PostIndReg";
+  let RenderMethod = "addRegOperands";
+}
+
+def postreg : Operand<i32> {
+  let PrintMethod = "printPostIndRegOperand";
+  let MIOperandInfo = (ops GR32);
+  let ParserMatchClass = PostIndRegAsmOperand;
+  let DecoderMethod = "DecodeGR32RegisterClass";
+}
 
 // Short jump targets have OtherVT type and are printed as pcrel imm values.
 def jmptarget : Operand<OtherVT> {
@@ -45,10 +93,10 @@ def jmptarget : Operand<OtherVT> {
 //===--------------------7.2.1(1) Load instructions------------------------===//
 class LDST_VIIForm<bits<6> opcode, string asmstr>
   : VIIForm<opcode, 
-            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr#"\t$disp16[$reg1],$reg2", []> ;
+            (outs), (ins i32imm:$disp32, GR32:$reg1, GR32:$reg2), asmstr#"\t$disp32[$reg1],$reg2", []> ;
 class LDST_VIIForm2<bits<6> opcode,bit sub_opcode1, string asmstr>
   : VIIForm2<opcode,
-            (outs), (ins i16imm:$disp16, GR32:$reg1, GR32:$reg2), asmstr#"\t$disp16[$reg1],$reg2", []> {
+            (outs), (ins i32imm:$disp32, GR32:$reg1, GR32:$reg2), asmstr#"\t$disp32[$reg1],$reg2", []> {
     let sub_opcode = sub_opcode1;
 }
 class LDST_XIVForm<bits<6> opcode,bits<5> sub_opcode1,bits<4> sub_opcode2, string asmstr>

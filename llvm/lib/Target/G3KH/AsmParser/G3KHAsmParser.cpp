@@ -558,21 +558,21 @@ static unsigned convertGR16ToGR8(unsigned Reg) {
   default:
     llvm_unreachable("Unknown GR16 register");
   // case G3KH::PC:  return G3KH::PCB;
-  case G3KH::SP:  return G3KH::SPB;
-  case G3KH::EP:  return G3KH::EPB;
-  case G3KH::TP:  return G3KH::TPB;
-  case G3KH::R1:  return G3KH::R1B;
-  case G3KH::R2:  return G3KH::R2B;
-  case G3KH::R6:  return G3KH::R6B;
-  case G3KH::R7:  return G3KH::R7B;
-  case G3KH::R8:  return G3KH::R8B;
-  case G3KH::R9:  return G3KH::R9B;
-  case G3KH::R10: return G3KH::R10B;
-  case G3KH::R11: return G3KH::R11B;
-  case G3KH::R12: return G3KH::R12B;
-  case G3KH::R13: return G3KH::R13B;
-  case G3KH::R14: return G3KH::R14B;
-  case G3KH::R15: return G3KH::R15B;
+  // case G3KH::SPH:  return G3KH::SPB;
+  // case G3KH::EPH:  return G3KH::EPB;
+  // case G3KH::TPH:  return G3KH::TPB;
+  // case G3KH::R1H:  return G3KH::R1B;
+  // case G3KH::R2H:  return G3KH::R2B;
+  // case G3KH::R6H:  return G3KH::R6B;
+  // case G3KH::R7H:  return G3KH::R7B;
+  // case G3KH::R8H:  return G3KH::R8B;
+  // case G3KH::R9H:  return G3KH::R9B;
+  // case G3KH::R10H: return G3KH::R10B;
+  // case G3KH::R11H: return G3KH::R11B;
+  // case G3KH::R12H: return G3KH::R12B;
+  // case G3KH::R13H: return G3KH::R13B;
+  // case G3KH::R14H: return G3KH::R14B;
+  // case G3KH::R15H: return G3KH::R15B;
   }
 }
 
@@ -586,11 +586,13 @@ unsigned G3KHAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
   unsigned Reg = Op.getReg();
   bool isGR16 =
       G3KHMCRegisterClasses[G3KH::GR16RegClassID].contains(Reg);
+  bool isGR32 =
+      G3KHMCRegisterClasses[G3KH::GR32RegClassID].contains(Reg);
 
-  if (isGR16 && (Kind == MCK_GR8)) {
-    Op.setReg(convertGR16ToGR8(Reg));
-    return Match_Success;
-  }
+  // if (isGR16 && (Kind == MCK_GR8)) {
+    // Op.setReg(convertGR16ToGR8(Reg));
+    // return Match_Success;
+  // }
 
   return Match_InvalidOperand;
 }

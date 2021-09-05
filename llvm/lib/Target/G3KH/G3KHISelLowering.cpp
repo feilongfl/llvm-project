@@ -48,6 +48,7 @@ G3KHTargetLowering::G3KHTargetLowering(const TargetMachine &TM,
   // Set up the register classes.
   addRegisterClass(MVT::i8,  &G3KH::GR8RegClass);
   addRegisterClass(MVT::i16, &G3KH::GR16RegClass);
+  addRegisterClass(MVT::i32, &G3KH::GR32RegClass);
 
   // Compute derived properties from the register classes
   computeRegisterProperties(STI.getRegisterInfo());
@@ -60,6 +61,7 @@ G3KHTargetLowering::G3KHTargetLowering(const TargetMachine &TM,
   // We have post-incremented loads / stores.
   setIndexedLoadAction(ISD::POST_INC, MVT::i8, Legal);
   setIndexedLoadAction(ISD::POST_INC, MVT::i16, Legal);
+  setIndexedLoadAction(ISD::POST_INC, MVT::i32, Legal);
 
   for (MVT VT : MVT::integer_valuetypes()) {
     setLoadExtAction(ISD::EXTLOAD,  VT, MVT::i1,  Promote);
@@ -67,6 +69,7 @@ G3KHTargetLowering::G3KHTargetLowering(const TargetMachine &TM,
     setLoadExtAction(ISD::ZEXTLOAD, VT, MVT::i1,  Promote);
     setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i8,  Expand);
     setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i16, Expand);
+    setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i32, Expand);
   }
 
   // We don't have any truncstores
@@ -78,6 +81,9 @@ G3KHTargetLowering::G3KHTargetLowering(const TargetMachine &TM,
   setOperationAction(ISD::SRA,              MVT::i16,   Custom);
   setOperationAction(ISD::SHL,              MVT::i16,   Custom);
   setOperationAction(ISD::SRL,              MVT::i16,   Custom);
+  setOperationAction(ISD::SRA,              MVT::i32,   Custom);
+  setOperationAction(ISD::SHL,              MVT::i32,   Custom);
+  setOperationAction(ISD::SRL,              MVT::i32,   Custom);
   setOperationAction(ISD::ROTL,             MVT::i8,    Expand);
   setOperationAction(ISD::ROTR,             MVT::i8,    Expand);
   setOperationAction(ISD::ROTL,             MVT::i16,   Expand);
@@ -128,6 +134,11 @@ G3KHTargetLowering::G3KHTargetLowering(const TargetMachine &TM,
   setOperationAction(ISD::MULHU,            MVT::i16,   Expand);
   setOperationAction(ISD::SMUL_LOHI,        MVT::i16,   Expand);
   setOperationAction(ISD::UMUL_LOHI,        MVT::i16,   Expand);
+  setOperationAction(ISD::MUL,              MVT::i32,   LibCall);
+  setOperationAction(ISD::MULHS,            MVT::i32,   Expand);
+  setOperationAction(ISD::MULHU,            MVT::i32,   Expand);
+  setOperationAction(ISD::SMUL_LOHI,        MVT::i32,   Expand);
+  setOperationAction(ISD::UMUL_LOHI,        MVT::i32,   Expand);
 
   setOperationAction(ISD::UDIV,             MVT::i8,    Promote);
   setOperationAction(ISD::UDIVREM,          MVT::i8,    Promote);
@@ -141,13 +152,19 @@ G3KHTargetLowering::G3KHTargetLowering(const TargetMachine &TM,
   setOperationAction(ISD::SDIV,             MVT::i16,   LibCall);
   setOperationAction(ISD::SDIVREM,          MVT::i16,   Expand);
   setOperationAction(ISD::SREM,             MVT::i16,   LibCall);
+  setOperationAction(ISD::UDIV,             MVT::i32,   LibCall);
+  setOperationAction(ISD::UDIVREM,          MVT::i32,   Expand);
+  setOperationAction(ISD::UREM,             MVT::i32,   LibCall);
+  setOperationAction(ISD::SDIV,             MVT::i32,   LibCall);
+  setOperationAction(ISD::SDIVREM,          MVT::i32,   Expand);
+  setOperationAction(ISD::SREM,             MVT::i32,   LibCall);
 
   // varargs support
   setOperationAction(ISD::VASTART,          MVT::Other, Custom);
   setOperationAction(ISD::VAARG,            MVT::Other, Expand);
   setOperationAction(ISD::VAEND,            MVT::Other, Expand);
   setOperationAction(ISD::VACOPY,           MVT::Other, Expand);
-  setOperationAction(ISD::JumpTable,        MVT::i16,   Custom);
+  setOperationAction(ISD::JumpTable,        MVT::i32,   Custom);
 
   // EABI Libcalls - EABI Section 6.2
   const struct {
@@ -400,8 +417,10 @@ G3KHTargetLowering::getRegForInlineAsmConstraint(
     case 'r':   // GENERAL_REGS
       if (VT == MVT::i8)
         return std::make_pair(0U, &G3KH::GR8RegClass);
+      else if (VT == MVT::i16)
+        return std::make_pair(0U, &G3KH::GR16RegClass);
 
-      return std::make_pair(0U, &G3KH::GR16RegClass);
+      return std::make_pair(0U, &G3KH::GR32RegClass);
     }
   }
 
@@ -649,8 +668,8 @@ SDValue G3KHTargetLowering::LowerCCCArguments(
 #endif
           llvm_unreachable(nullptr);
         }
-      case MVT::i16:
-        Register VReg = RegInfo.createVirtualRegister(&G3KH::GR16RegClass);
+      case MVT::i32:
+        Register VReg = RegInfo.createVirtualRegister(&G3KH::GR32RegClass);
         RegInfo.addLiveIn(VA.getLocReg(), VReg);
         SDValue ArgValue = DAG.getCopyFromReg(Chain, dl, VReg, RegVT);
 
@@ -693,7 +712,7 @@ SDValue G3KHTargetLowering::LowerCCCArguments(
 
         // Create the SelectionDAG nodes corresponding to a load
         //from this parameter
-        SDValue FIN = DAG.getFrameIndex(FI, MVT::i16);
+        SDValue FIN = DAG.getFrameIndex(FI, MVT::i32);
         InVal = DAG.getLoad(
             VA.getLocVT(), dl, Chain, FIN,
             MachinePointerInfo::getFixedStack(DAG.getMachineFunction(), FI));
@@ -708,7 +727,7 @@ SDValue G3KHTargetLowering::LowerCCCArguments(
       unsigned Reg = FuncInfo->getSRetReturnReg();
       if (!Reg) {
         Reg = MF.getRegInfo().createVirtualRegister(
-            getRegClassFor(MVT::i16));
+            getRegClassFor(MVT::i32));
         FuncInfo->setSRetReturnReg(Reg);
       }
       SDValue Copy = DAG.getCopyToReg(DAG.getEntryNode(), dl, Reg, InVals[i]);
@@ -861,7 +880,7 @@ SDValue G3KHTargetLowering::LowerCCCCallTo(
       ISD::ArgFlagsTy Flags = Outs[i].Flags;
 
       if (Flags.isByVal()) {
-        SDValue SizeNode = DAG.getConstant(Flags.getByValSize(), dl, MVT::i16);
+        SDValue SizeNode = DAG.getConstant(Flags.getByValSize(), dl, MVT::i32);
         MemOp = DAG.getMemcpy(
             Chain, dl, PtrOff, Arg, SizeNode, Flags.getNonZeroByValAlign(),
             /*isVolatile*/ false,
@@ -894,9 +913,9 @@ SDValue G3KHTargetLowering::LowerCCCCallTo(
   // turn it into a TargetGlobalAddress node so that legalize doesn't hack it.
   // Likewise ExternalSymbol -> TargetExternalSymbol.
   if (GlobalAddressSDNode *G = dyn_cast<GlobalAddressSDNode>(Callee))
-    Callee = DAG.getTargetGlobalAddress(G->getGlobal(), dl, MVT::i16);
+    Callee = DAG.getTargetGlobalAddress(G->getGlobal(), dl, MVT::i32);
   else if (ExternalSymbolSDNode *E = dyn_cast<ExternalSymbolSDNode>(Callee))
-    Callee = DAG.getTargetExternalSymbol(E->getSymbol(), MVT::i16);
+    Callee = DAG.getTargetExternalSymbol(E->getSymbol(), MVT::i32);
 
   // Returns a chain & a flag for retval copy to use.
   SDVTList NodeTys = DAG.getVTList(MVT::Other, MVT::Glue);

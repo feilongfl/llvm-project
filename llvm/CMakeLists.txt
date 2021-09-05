@@ -304,14 +304,14 @@ set(LLVM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 set(LLVM_ALL_TARGETS
   # AArch64
   # AMDGPU
-  # ARM
-  # AVR
+  ARM
+  AVR
   # BPF
   G3KH
   # Hexagon
   # Lanai
   # Mips
-  # MSP430
+  MSP430
   # NVPTX
   # PowerPC
   # RISCV
