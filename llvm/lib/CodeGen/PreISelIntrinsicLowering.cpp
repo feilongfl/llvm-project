@@ -125,6 +125,8 @@ static bool lowerIntrinsics(Module &M) {
       Changed |= lowerLoadRelative(F);
       continue;
     }
+    StringRef name = F.getName();
+    Intrinsic::ID test = F.getIntrinsicID();
     switch (F.getIntrinsicID()) {
     default:
       break;

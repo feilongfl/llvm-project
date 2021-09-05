@@ -34,6 +34,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <algorithm>
 #include <unordered_set>
+#include <iostream>
 using namespace llvm;
 
 // See PassManagers.h for Pass Manager infrastructure overview.
@@ -1419,6 +1420,8 @@ bool FPPassManager::runOnFunction(Function &F) {
 
   llvm::TimeTraceScope FunctionScope("OptFunction", F.getName());
 
+  int pass_index = 0;
+
   for (unsigned Index = 0; Index < getNumContainedPasses(); ++Index) {
     FunctionPass *FP = getContainedPass(Index);
     bool LocalChanged = false;
@@ -1436,6 +1439,7 @@ bool FPPassManager::runOnFunction(Function &F) {
 #ifdef EXPENSIVE_CHECKS
       uint64_t RefHash = StructuralHash(F);
 #endif
+      std::cout << pass_index++ << "\t" << FP->getPassName().bytes().begin() << "\t" << F.getName().bytes().begin() << std::endl;
       LocalChanged |= FP->runOnFunction(F);
 
 #if defined(EXPENSIVE_CHECKS) && !defined(NDEBUG)
