@@ -167,6 +167,17 @@ def SSTW_VII : SLDST_IVForm2<0b1010, 1, "SLD.W">;
 //===--------------------7.2.1(11) Divide instructions---------------------===//
 //===--------------------7.2.1(12) High-speed divide instructions----------===//
 //===--------------------7.2.1(13) Branch instructions---------------------===//
+
+// temp add
+let isTerminator = 1, isReturn = 1, isBarrier = 1 in {
+  def RET : IForm<0b000011, (outs), (ins variable_ops),
+                   "jmp\tr31",
+                   [(G3KHretflag)]> {
+    let reg2 = 0b00000;
+    let reg1 = 0b11111;
+  }
+}
+
 let isBranch = 1, isTerminator = 1 in {
 
 // Direct branch
