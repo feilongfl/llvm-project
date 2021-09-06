@@ -1,31 +1,27 @@
 add_llvm_component_group(G3KH)
 
-set(LLVM_TARGET_DEFINITIONS G3KH.td)
+set(LLVM_TARGET_DEFINITIONS TOY.td)
 
-tablegen(LLVM G3KHGenAsmMatcher.inc -gen-asm-matcher)
-tablegen(LLVM G3KHGenAsmWriter.inc -gen-asm-writer)
-tablegen(LLVM G3KHGenCallingConv.inc -gen-callingconv)
-tablegen(LLVM G3KHGenDAGISel.inc -gen-dag-isel)
-tablegen(LLVM G3KHGenDisassemblerTables.inc -gen-disassembler)
-tablegen(LLVM G3KHGenInstrInfo.inc -gen-instr-info)
-tablegen(LLVM G3KHGenMCCodeEmitter.inc -gen-emitter)
-tablegen(LLVM G3KHGenRegisterInfo.inc -gen-register-info)
-tablegen(LLVM G3KHGenSubtargetInfo.inc -gen-subtarget)
-
-add_public_tablegen_target(G3KHCommonTableGen)
+tablegen(LLVM TOYGenRegisterInfo.inc -gen-register-info)
+tablegen(LLVM TOYGenInstrInfo.inc -gen-instr-info)
+tablegen(LLVM TOYGenAsmWriter.inc -gen-asm-writer)
+tablegen(LLVM TOYGenDAGISel.inc -gen-dag-isel)
+tablegen(LLVM TOYGenCallingConv.inc -gen-callingconv)
+tablegen(LLVM TOYGenSubtargetInfo.inc -gen-subtarget)
+tablegen(LLVM TOYGenMCCodeEmitter.inc -gen-emitter)
+add_public_tablegen_target(TOYCommonTableGen)
 
 add_llvm_target(G3KHCodeGen
-  G3KHBranchSelector.cpp
-  G3KHISelDAGToDAG.cpp
-  G3KHISelLowering.cpp
-  G3KHInstrInfo.cpp
-  G3KHFrameLowering.cpp
-  G3KHMachineFunctionInfo.cpp
-  G3KHRegisterInfo.cpp
-  G3KHSubtarget.cpp
-  G3KHTargetMachine.cpp
-  G3KHAsmPrinter.cpp
-  G3KHMCInstLower.cpp
+  TOYSubtarget.cpp
+  TOYTargetMachine.cpp
+  TOYRegisterInfo.cpp
+  TOYInstrInfo.cpp
+  TOYFrameLowering.cpp
+  TOYISelLowering.cpp
+  TOYSelectionDAGInfo.cpp
+  TOYISelDAGToDAG.cpp
+  TOYAsmPrinter.cpp
+  TOYMCInstLower.cpp
 
   LINK_COMPONENTS
   AsmPrinter
@@ -42,7 +38,6 @@ add_llvm_target(G3KHCodeGen
   G3KH
   )
 
-add_subdirectory(MCTargetDesc)
+add_subdirectory(InstPrinter)
 add_subdirectory(TargetInfo)
-add_subdirectory(AsmParser)
-add_subdirectory(Disassembler)
+add_subdirectory(MCTargetDesc)
