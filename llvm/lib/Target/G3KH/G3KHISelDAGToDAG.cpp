@@ -387,6 +387,24 @@ void G3KHDAGToDAGISel::Select(SDNode *Node) {
   // Few custom selection stuff.
   switch (Node->getOpcode()) {
   default: break;
+
+  case ISD::Constant: {
+
+    unsigned Opcode = Node->getOpcode();
+    EVT VT = Node->getValueType(0);
+    auto ConstNode = cast<ConstantSDNode>(Node);
+    if ( ConstNode->isNullValue()) {
+      SDValue New = CurDAG->getCopyFromReg(CurDAG->getEntryNode(), SDLoc(Node), G3KH::R0, VT );
+      ReplaceNode(Node, New.getNode());
+      return;
+    }
+    // int64_t Imm = ConstNode->getSExtValue();
+    // if (XLenVT == MVT::i64) {
+    //   // ReplaceNode(Node, selectImm(CurDAG, SDLoc(Node), Imm, XLenVT));
+    //   return;
+    // }
+    break;
+  }
   // case ISD::FrameIndex: {
   //   assert(Node->getValueType(0) == MVT::i16);
   //   int FI = cast<FrameIndexSDNode>(Node)->getIndex();

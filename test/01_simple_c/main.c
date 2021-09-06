@@ -1,6 +1,6 @@
 
 int main() {
-    volatile int a = 5;
+    // volatile short a = 5;
 
-    return a;
+    return 0;
 }

@@ -10,8 +10,9 @@ killall xdot
 ../../build/bin/clang main.c -O1 -g -emit-llvm -S -c -o ../../build/test/01_simple_c_x86.ll
 # echo build ll x86
 # ../../build/bin/llc --view-dag-combine1-dags ../../build/test/01_simple_c_x86.ll
-echo build ll msp430
-../../build/bin/llc --view-dag-combine1-dags ../../build/test/01_simple_c_430.ll
+# echo build ll msp430
+# ../../build/bin/llc --view-dag-combine1-dags -view-legalize-types-dags -view-legalize-dags --view-dag-combine2-dags --view-isel-dags --view-sched-dags ../../build/test/01_simple_c_430.ll
+# ../../build/bin/llc ../../build/test/01_simple_c_430.ll
 echo build ll g3kh
-../../build/bin/llc --view-dag-combine1-dags ../../build/test/01_simple_c_g3kh.ll
+../../build/bin/llc --view-sched-dags --view-sunit-dags ../../build/test/01_simple_c_g3kh.ll
 # code ../../build/test/01_simple_c.ll
