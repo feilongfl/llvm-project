@@ -101,6 +101,7 @@ public:
     renderscript32, // 32-bit RenderScript
     renderscript64, // 64-bit RenderScript
     ve,             // NEC SX-Aurora Vector Engine
+    g3kh,           // Renesas G3KH
     LastArchType = ve
   };
   enum SubArchType {
@@ -809,6 +810,11 @@ public:
   bool isX32() const {
     EnvironmentType Env = getEnvironment();
     return Env == Triple::GNUX32 || Env == Triple::MuslX32;
+  }
+
+  /// Tests whether the target is G3KH
+  bool isG3KH() const {
+    return getArch() == Triple::g3kh;
   }
 
   /// Tests whether the target supports comdat
