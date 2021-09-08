@@ -1313,8 +1313,8 @@ template <class ELFT> Triple::ArchType ELFObjectFile<ELFT>::getArch() const {
     return Triple::ve;
   case ELF::EM_CSKY:
     return Triple::csky;
-  case ELF::EM_V850:
-    if ((EF.getHeader().e_flags & ELF::EF_V850_ABI_RH850) == ELF::EF_V850_ABI_RH850)
+  case ELF::EM_V800:
+    if ((EF.getHeader().e_flags & ELF::EF_V800_ABI_RH850) == ELF::EF_V800_ABI_RH850)
       return Triple::g3kh;
       
     return Triple::UnknownArch;

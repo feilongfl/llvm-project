@@ -1590,6 +1590,27 @@ static const EnumEntry<unsigned> ElfHeaderAVRFlags[] = {
   ENUM_ENT(EF_AVR_LINKRELAX_PREPARED, "relaxable"),
 };
 
+static const EnumEntry<unsigned> ElfHeaderV800Flags[] = {
+  ENUM_ENT(EF_V800_ABI_RH850, "RH850 ABI"),
+  ENUM_ENT(EF_V800_850E3, "V3 architecture"),
+
+  // ENUM_ENT(EF_V800_RH850_FPU_DOUBLE	/* sizeof(double) == 8.  */
+  // ENUM_ENT(EF_V800_RH850_FPU_SINGLE	/* sizeof(double) == 4.  */
+  ENUM_ENT(EF_V800_RH850_FPU_NotUSE, "FPU not used"),
+  ENUM_ENT(EF_V800_RH850_FPU_DOUBLE, "FPU double=8"),
+  ENUM_ENT(EF_V800_RH850_FPU_SINGLE, "FPU double=4"),
+  ENUM_ENT(EF_V800_RH850_REGMODE22, "reg mode:22"),
+  ENUM_ENT(EF_V800_RH850_REGMODE32, "reg mode:32"),
+  ENUM_ENT(EF_V800_RH850_GP_FIX, "R4(GP) fixed"),
+  ENUM_ENT(EF_V800_RH850_GP_NOFIX, "R4(GP) free"),
+  ENUM_ENT(EF_V800_RH850_EP_FIX, "R30(EP) fixed"),
+  ENUM_ENT(EF_V800_RH850_EP_NOFIX, "R30(EP) free"),
+  ENUM_ENT(EF_V800_RH850_TP_FIX, "R5(TP) fixed"),
+  ENUM_ENT(EF_V800_RH850_TP_NOFIX, "R5(TP) free"),
+  ENUM_ENT(EF_V800_RH850_REG2_RESERVE, "R2(OS) reserve"),
+  ENUM_ENT(EF_V800_RH850_REG2_NORESERVE, "R2(OS) free"),
+};
+
 
 static const EnumEntry<unsigned> ElfSymOtherFlags[] = {
   LLVM_READOBJ_ENUM_ENT(ELF, STV_INTERNAL),
@@ -3278,6 +3299,9 @@ template <class ELFT> void GNUELFDumper<ELFT>::printFileHeaders() {
   else if (e.e_machine == EM_AVR)
     ElfFlags = printFlags(e.e_flags, makeArrayRef(ElfHeaderAVRFlags),
                           unsigned(ELF::EF_AVR_ARCH_MASK));
+  else if (e.e_machine == EM_V800)
+    ElfFlags = printFlags(e.e_flags, makeArrayRef(ElfHeaderV800Flags),
+                          unsigned(ELF::EF_V850_ARCH));
   Str = "0x" + to_hexString(e.e_flags);
   if (!ElfFlags.empty())
     Str = Str + ", " + ElfFlags;

@@ -862,7 +862,42 @@ enum {
 
 // V850 specific e_flags
 enum : unsigned {
-  EF_V850_ABI_RH850 = 0xF0000000,
+// /* Four bit V850 architecture field.  */
+  EF_V850_ARCH = 0xf0000000,
+// /* v850 code.  */
+// #define E_V850_ARCH		0x00000000
+// /* v850e code.  */
+// #define E_V850E_ARCH		0x10000000
+// /* v850e1 code.  */
+// #define E_V850E1_ARCH		0x20000000
+// /* v850e2 code.  */
+// #define E_V850E2_ARCH		0x30000000
+// /* v850e2v3 code.  */
+// #define E_V850E2V3_ARCH		0x40000000
+// /* v850e3v5 code.  */
+// #define E_V850E3V5_ARCH		0x60000000
+
+  EF_V800_ABI_RH850 = 0xF0000000,
+
+  EF_V800_850E3 = 0x00100000,
+
+  EF_V800_RH850_FPU_NotUSE = 0x00000000,
+  EF_V800_RH850_FPU_DOUBLE = 0x00000001,	/* sizeof(double) == 8.  */
+  EF_V800_RH850_FPU_SINGLE = 0x00000002,	/* sizeof(double) == 4.  */
+  EF_V800_RH850_REGMODE22 = 0x00000020,	/* Registers r15-r24 (inclusive) are not used.  */
+  EF_V800_RH850_REGMODE32 = 0x00000040,
+  EF_V800_RH850_GP_FIX = 0x00000100,	/* r4 is fixed.  */
+  EF_V800_RH850_GP_NOFIX = 0x00000200,	/* r4 is callee save.  */
+  EF_V800_RH850_EP_FIX = 0x00000400,	/* r30 is fixed.  */
+  EF_V800_RH850_EP_NOFIX = 0x00000800,	/* r30 is callee save.  */
+  EF_V800_RH850_TP_FIX = 0x00001000,	/* r5 is fixed.  */
+  EF_V800_RH850_TP_NOFIX = 0x00002000,	/* r5 is callee save.  */
+  EF_V800_RH850_REG2_RESERVE = 0x00004000,	/* r2 is fixed.  */
+  EF_V800_RH850_REG2_NORESERVE = 0x00008000,	/* r2 is callee saved.  */
+  EF_V800_RH850_FLAG = 0x00008fff,
+
+  EF_V800_SHF_RENESAS_ABS = 0x80000000,	/* Absolute section.  */
+  EF_V800_SHF_GHS_ABS = 0x00000400,	/* Use unknown.  */
 };
 
 // ELF Relocation types for V850
