@@ -860,6 +860,16 @@ enum {
 #include "ELFRelocs/CSKY.def"
 };
 
+// V850 specific e_flags
+enum : unsigned {
+  EF_V850_ABI_RH850 = 0xF0000000,
+};
+
+// ELF Relocation types for V850
+enum {
+#include "ELFRelocs/V800.def"
+};
+
 #undef ELF_RELOC
 
 // Section header.
@@ -973,6 +983,8 @@ enum : unsigned {
   SHT_MSP430_ATTRIBUTES = 0x70000003U,
 
   SHT_RISCV_ATTRIBUTES = 0x70000003U,
+
+  SHT_V800_IOP = 0x80000000, // RENESAS IOP(=SHT_LOUSER), Used by Renesas linker.
 
   SHT_HIPROC = 0x7fffffff, // Highest processor arch-specific type.
   SHT_LOUSER = 0x80000000, // Lowest type reserved for applications.

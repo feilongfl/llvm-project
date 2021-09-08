@@ -166,6 +166,13 @@ StringRef llvm::object::getELFRelocationTypeName(uint32_t Machine,
       break;
     }
     break;
+  case ELF::EM_V800:
+    switch (Type) {
+#include "llvm/BinaryFormat/ELFRelocs/V800.def"
+    default:
+      break;
+    }
+    break;
   default:
     break;
   }
@@ -248,6 +255,9 @@ StringRef llvm::object::getELFSectionTypeName(uint32_t Machine, unsigned Type) {
     break;
   case ELF::EM_RISCV:
     switch (Type) { STRINGIFY_ENUM_CASE(ELF, SHT_RISCV_ATTRIBUTES); }
+    break;
+  case ELF::EM_V800:
+    switch (Type) { STRINGIFY_ENUM_CASE(ELF, SHT_V800_IOP); }
     break;
   default:
     break;

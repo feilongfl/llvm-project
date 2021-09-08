@@ -1198,6 +1198,10 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
       return "elf32-sparc";
     case ELF::EM_AMDGPU:
       return "elf32-amdgpu";
+    case ELF::EM_V800:
+      return "elf-v800";
+    case ELF::EM_V850:
+      return "elf-v850";
     default:
       return "elf32-unknown";
     }
@@ -1309,6 +1313,12 @@ template <class ELFT> Triple::ArchType ELFObjectFile<ELFT>::getArch() const {
     return Triple::ve;
   case ELF::EM_CSKY:
     return Triple::csky;
+  case ELF::EM_V850:
+    if ((EF.getHeader().e_flags & ELF::EF_V850_ABI_RH850) == ELF::EF_V850_ABI_RH850)
+      return Triple::g3kh;
+      
+    return Triple::UnknownArch;
+    
   default:
     return Triple::UnknownArch;
   }
