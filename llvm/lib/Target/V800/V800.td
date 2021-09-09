@@ -14,8 +14,10 @@ include "V800Schedule.td"
 include "V800InstrFormats.td"
 include "V800InstrInfo.td"
 
+// not use
 def : ProcessorModel<"generic", NoSchedModel, []>;
-def : ProcessorModel<"g3kh", NoSchedModel, []>; // at this time I don't prepare for othre v800 serial cpu.
+// at this time I don't prepare for othre v800 serial cpu.
+def : ProcessorModel<"g3kh", G3KHSchedModel, []>;
 
 def V800InstrInfo : InstrInfo;
 
