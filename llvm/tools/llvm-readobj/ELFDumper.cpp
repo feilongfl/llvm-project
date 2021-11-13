@@ -1580,6 +1580,27 @@ const EnumEntry<unsigned> ElfHeaderAMDGPUFlagsABIVersion4[] = {
   LLVM_READOBJ_ENUM_ENT(ELF, EF_AMDGPU_FEATURE_SRAMECC_ON_V4)
 };
 
+static const EnumEntry<unsigned> ElfHeaderV800Flags[] = {
+  ENUM_ENT(EF_V800_ABI_RH850, "RH850 ABI"),
+  ENUM_ENT(EF_V800_850E3, "V3 architecture"),
+
+  // ENUM_ENT(EF_V800_RH850_FPU_DOUBLE	/* sizeof(double) == 8.  */
+  // ENUM_ENT(EF_V800_RH850_FPU_SINGLE	/* sizeof(double) == 4.  */
+  ENUM_ENT(EF_V800_RH850_FPU_NotUSE, "FPU not used"),
+  ENUM_ENT(EF_V800_RH850_FPU_DOUBLE, "FPU double=8"),
+  ENUM_ENT(EF_V800_RH850_FPU_SINGLE, "FPU double=4"),
+  ENUM_ENT(EF_V800_RH850_REGMODE22, "reg mode:22"),
+  ENUM_ENT(EF_V800_RH850_REGMODE32, "reg mode:32"),
+  ENUM_ENT(EF_V800_RH850_GP_FIX, "R4(GP) fixed"),
+  ENUM_ENT(EF_V800_RH850_GP_NOFIX, "R4(GP) free"),
+  ENUM_ENT(EF_V800_RH850_EP_FIX, "R30(EP) fixed"),
+  ENUM_ENT(EF_V800_RH850_EP_NOFIX, "R30(EP) free"),
+  ENUM_ENT(EF_V800_RH850_TP_FIX, "R5(TP) fixed"),
+  ENUM_ENT(EF_V800_RH850_TP_NOFIX, "R5(TP) free"),
+  ENUM_ENT(EF_V800_RH850_REG2_RESERVE, "R2(OS) reserve"),
+  ENUM_ENT(EF_V800_RH850_REG2_NORESERVE, "R2(OS) free"),
+};
+
 const EnumEntry<unsigned> ElfHeaderRISCVFlags[] = {
   ENUM_ENT(EF_RISCV_RVC, "RVC"),
   ENUM_ENT(EF_RISCV_FLOAT_ABI_SINGLE, "single-float ABI"),
@@ -3314,6 +3335,8 @@ template <class ELFT> void GNUELFDumper<ELFT>::printFileHeaders() {
         printFlags(e.e_flags, makeArrayRef(ElfHeaderMipsFlags),
                    unsigned(ELF::EF_MIPS_ARCH), unsigned(ELF::EF_MIPS_ABI),
                    unsigned(ELF::EF_MIPS_MACH));
+  else if (e.e_machine == EM_V800)
+    ElfFlags = printFlags(e.e_flags, makeArrayRef(ElfHeaderV800Flags));
   else if (e.e_machine == EM_RISCV)
     ElfFlags = printFlags(e.e_flags, makeArrayRef(ElfHeaderRISCVFlags));
   else if (e.e_machine == EM_AVR)
@@ -6400,6 +6423,8 @@ template <class ELFT> void LLVMELFDumper<ELFT>::printFileHeaders() {
                      unsigned(ELF::EF_AMDGPU_FEATURE_SRAMECC_V4));
         break;
       }
+    } else if (E.e_machine == EM_V800) {
+      W.printFlags("Flags", E.e_flags, makeArrayRef(ElfHeaderV800Flags));
     } else if (E.e_machine == EM_RISCV)
       W.printFlags("Flags", E.e_flags, makeArrayRef(ElfHeaderRISCVFlags));
     else if (E.e_machine == EM_AVR)
