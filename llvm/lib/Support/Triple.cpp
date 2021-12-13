@@ -59,6 +59,7 @@ StringRef Triple::getArchTypeName(ArchType Kind) {
   case r600:           return "r600";
   case renderscript32: return "renderscript32";
   case renderscript64: return "renderscript64";
+  case v800:           return "v800";
   case riscv32:        return "riscv32";
   case riscv64:        return "riscv64";
   case shave:          return "shave";
@@ -162,6 +163,7 @@ StringRef Triple::getArchTypePrefix(ArchType Kind) {
   case riscv32:
   case riscv64:     return "riscv";
 
+  case v800:        return "v800";
   case ve:          return "ve";
   case csky:        return "csky";
   }
@@ -182,6 +184,7 @@ StringRef Triple::getVendorTypeName(VendorType Kind) {
   case Myriad: return "myriad";
   case NVIDIA: return "nvidia";
   case OpenEmbedded: return "oe";
+  case Renesas: return "renesas";
   case PC: return "pc";
   case SCEI: return "scei";
   case SUSE: return "suse";
@@ -338,6 +341,7 @@ Triple::ArchType Triple::getArchTypeForLLVMName(StringRef Name) {
     .Case("wasm64", wasm64)
     .Case("renderscript32", renderscript32)
     .Case("renderscript64", renderscript64)
+    .Case("v800", v800)
     .Case("ve", ve)
     .Case("csky", csky)
     .Default(UnknownArch);
@@ -471,6 +475,7 @@ static Triple::ArchType parseArch(StringRef ArchName) {
     .Case("renderscript32", Triple::renderscript32)
     .Case("renderscript64", Triple::renderscript64)
     .Case("shave", Triple::shave)
+    .Case("v800", Triple::v800)
     .Case("ve", Triple::ve)
     .Case("wasm32", Triple::wasm32)
     .Case("wasm64", Triple::wasm64)
@@ -506,6 +511,7 @@ static Triple::VendorType parseVendor(StringRef VendorName) {
     .Case("amd", Triple::AMD)
     .Case("mesa", Triple::Mesa)
     .Case("suse", Triple::SUSE)
+    .Case("renesas", Triple::Renesas)
     .Case("oe", Triple::OpenEmbedded)
     .Default(Triple::UnknownVendor);
 }
@@ -600,6 +606,9 @@ static Triple::SubArchType parseSubArch(StringRef SubArchName) {
 
   if (SubArchName == "arm64e")
     return Triple::AArch64SubArch_arm64e;
+
+  if (SubArchName == "g3kh")
+    return Triple::V800SubArch_g3kh;
 
   StringRef ARMSubArch = ARM::getCanonicalArchName(SubArchName);
 
@@ -755,6 +764,7 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::tce:
   case Triple::tcele:
   case Triple::thumbeb:
+  case Triple::v800:
   case Triple::ve:
   case Triple::xcore:
     return Triple::ELF;
@@ -1308,6 +1318,7 @@ static unsigned getArchPointerBitWidth(llvm::Triple::ArchType Arch) {
   case llvm::Triple::tcele:
   case llvm::Triple::thumb:
   case llvm::Triple::thumbeb:
+  case llvm::Triple::v800:
   case llvm::Triple::wasm32:
   case llvm::Triple::x86:
   case llvm::Triple::xcore:
@@ -1395,6 +1406,7 @@ Triple Triple::get32BitArchVariant() const {
   case Triple::tcele:
   case Triple::thumb:
   case Triple::thumbeb:
+  case Triple::v800:
   case Triple::wasm32:
   case Triple::x86:
   case Triple::xcore:
@@ -1443,6 +1455,7 @@ Triple Triple::get64BitArchVariant() const {
   case Triple::sparcel:
   case Triple::tce:
   case Triple::tcele:
+  case Triple::v800:
   case Triple::xcore:
     T.setArch(UnknownArch);
     break;
@@ -1637,6 +1650,7 @@ bool Triple::isLittleEndian() const {
   case Triple::spirv64:
   case Triple::tcele:
   case Triple::thumb:
+  case Triple::v800:
   case Triple::ve:
   case Triple::wasm32:
   case Triple::wasm64:

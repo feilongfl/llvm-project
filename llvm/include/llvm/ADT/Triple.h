@@ -101,6 +101,7 @@ public:
     wasm64,         // WebAssembly with 64-bit pointers
     renderscript32, // 32-bit RenderScript
     renderscript64, // 64-bit RenderScript
+    v800,           // NEC V800
     ve,             // NEC SX-Aurora Vector Engine
     LastArchType = ve
   };
@@ -146,7 +147,9 @@ public:
 
     MipsSubArch_r6,
 
-    PPCSubArch_spe
+    PPCSubArch_spe,
+
+    V800SubArch_g3kh,
   };
   enum VendorType {
     UnknownVendor,
@@ -164,6 +167,7 @@ public:
     AMD,
     Mesa,
     SUSE,
+    Renesas,
     OpenEmbedded,
     LastVendorType = OpenEmbedded
   };
@@ -768,6 +772,11 @@ public:
   /// Tests whether the target is 64-bit PowerPC (little and big endian).
   bool isPPC64() const {
     return getArch() == Triple::ppc64 || getArch() == Triple::ppc64le;
+  }
+
+  /// Tests whether the target is V800 (32-bit).
+  bool isV800() const {
+    return getArch() == Triple::v800 || getSubArch() == Triple::V800SubArch_g3kh;
   }
 
   /// Tests whether the target is RISC-V (32- and 64-bit).
