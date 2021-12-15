@@ -301,6 +301,16 @@ namespace clang {
     };
   }
 
+  /// V800 builtins
+  namespace V800 {
+    enum {
+        LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,
+#define BUILTIN(ID, TYPE, ATTRS) BI##ID,
+#include "clang/Basic/BuiltinsV800.def"
+        LastTSBuiltin
+    };
+  }
+
   /// XCore builtins
   namespace XCore {
     enum {

@@ -34,6 +34,7 @@
 #include "Targets/Sparc.h"
 #include "Targets/SystemZ.h"
 #include "Targets/TCE.h"
+#include "Targets/V800.h"
 #include "Targets/VE.h"
 #include "Targets/WebAssembly.h"
 #include "Targets/X86.h"
@@ -114,6 +115,9 @@ TargetInfo *AllocateTarget(const llvm::Triple &Triple,
 
   case llvm::Triple::arc:
     return new ARCTargetInfo(Triple, Opts);
+
+  case llvm::Triple::v800:
+    return new V800TargetInfo(Triple, Opts);
 
   case llvm::Triple::xcore:
     return new XCoreTargetInfo(Triple, Opts);
