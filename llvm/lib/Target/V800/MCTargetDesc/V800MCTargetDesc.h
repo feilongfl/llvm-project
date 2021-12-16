@@ -1,0 +1,33 @@
+//===-- V800MCTargetDesc.h - V800 Target Descriptions -------*- C++ -*-===//
+//
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===----------------------------------------------------------------------===//
+//
+// This file provides V800 specific target descriptions.
+//
+//===----------------------------------------------------------------------===//
+
+#ifndef LLVM_LIB_TARGET_V800_MCTARGETDESC_V800MCTARGETDESC_H
+#define LLVM_LIB_TARGET_V800_MCTARGETDESC_V800MCTARGETDESC_H
+
+#include "llvm/Support/DataTypes.h"
+#include <memory>
+
+namespace llvm {
+class Target;
+class MCAsmBackend;
+class MCCodeEmitter;
+class MCInstrInfo;
+class MCSubtargetInfo;
+class MCRegisterInfo;
+class MCContext;
+class MCTargetOptions;
+class MCObjectTargetWriter;
+class MCStreamer;
+class MCTargetStreamer;
+} // End llvm namespace
+
+#endif
