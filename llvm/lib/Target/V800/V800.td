@@ -41,5 +41,21 @@ def : Proc<"g3kh",            [FeatureFPU]>;
 
 include "V800RegisterInfo.td"
 
+//===----------------------------------------------------------------------===//
+// Calling Convention Description
+//===----------------------------------------------------------------------===//
+
+include "V800CallingConv.td"
+
+//===----------------------------------------------------------------------===//
+// Instruction Descriptions
+//===----------------------------------------------------------------------===//
+
+include "V800InstrInfo.td"
+
+def V800InstrInfo : InstrInfo;
+
+
 def V800 : Target {
+  let InstructionSet = V800InstrInfo;
 }
