@@ -48,6 +48,8 @@ V800TargetMachine::V800TargetMachine(const Target &T, const Triple &TT,
                         Options, getEffectiveRelocModel(RM),
                         getEffectiveCodeModel(CM, CodeModel::Small), OL),
       TLOF(std::make_unique<TargetLoweringObjectFileELF>())
-{}
+{
+  initAsmInfo();
+}
 
 V800TargetMachine::~V800TargetMachine() {}
