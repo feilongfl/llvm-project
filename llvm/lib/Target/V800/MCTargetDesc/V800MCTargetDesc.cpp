@@ -20,6 +20,9 @@
 
 using namespace llvm;
 
+#define GET_REGINFO_MC_DESC
+#include "V800GenRegisterInfo.inc"
+
 #define GET_SUBTARGETINFO_MC_DESC
 #include "V800GenSubtargetInfo.inc"
 
@@ -30,6 +33,7 @@ static MCInstrInfo *createV800MCInstrInfo() {
 
 static MCRegisterInfo *createV800MCRegisterInfo(const Triple &TT) {
   MCRegisterInfo *X = new MCRegisterInfo();
+  InitV800MCRegisterInfo(X, V800::PC);
   return X;
 }
 

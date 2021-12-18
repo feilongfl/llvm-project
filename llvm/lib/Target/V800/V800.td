@@ -35,5 +35,11 @@ def : Proc<"generic",         []>;
 def : Proc<"g3k",             []>;
 def : Proc<"g3kh",            [FeatureFPU]>;
 
+//===----------------------------------------------------------------------===//
+// Register File Description
+//===----------------------------------------------------------------------===//
+
+include "V800RegisterInfo.td"
+
 def V800 : Target {
 }

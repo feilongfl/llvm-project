@@ -2,6 +2,7 @@ add_llvm_component_group(V800)
 
 set(LLVM_TARGET_DEFINITIONS V800.td)
 
+tablegen(LLVM V800GenRegisterInfo.inc -gen-register-info)
 tablegen(LLVM V800GenSubtargetInfo.inc -gen-subtarget)
 
 add_public_tablegen_target(V800CommonTableGen)
