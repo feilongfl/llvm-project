@@ -28,6 +28,11 @@ class MCTargetOptions;
 class MCObjectTargetWriter;
 class MCStreamer;
 class MCTargetStreamer;
+
+/// Creates a machine code emitter for V800.
+MCCodeEmitter *createV800MCCodeEmitter(const MCInstrInfo &MCII,
+                                         const MCRegisterInfo &MRI,
+                                         MCContext &Ctx);
 } // End llvm namespace
 
 #define GET_REGINFO_ENUM

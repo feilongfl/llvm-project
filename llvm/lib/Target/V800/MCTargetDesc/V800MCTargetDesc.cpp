@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "V800MCTargetDesc.h"
+#include "V800InstPrinter.h"
 #include "V800MCAsmInfo.h"
 #include "TargetInfo/V800TargetInfo.h"
 #include "llvm/MC/MCInstrInfo.h"
@@ -42,6 +43,16 @@ createV800MCSubtargetInfo(const Triple &TT, StringRef CPU, StringRef FS) {
   return createV800MCSubtargetInfoImpl(TT, CPU, CPU, FS);
 }
 
+static MCInstPrinter *createV800MCInstPrinter(const Triple &T,
+                                                unsigned SyntaxVariant,
+                                                const MCAsmInfo &MAI,
+                                                const MCInstrInfo &MII,
+                                                const MCRegisterInfo &MRI) {
+  if (SyntaxVariant == 0)
+    return new V800InstPrinter(MAI, MII, MRI);
+  return nullptr;
+}
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeV800TargetMC() {
   Target &T = getTheV800Target();
 
@@ -49,4 +60,6 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeV800TargetMC() {
   TargetRegistry::RegisterMCInstrInfo(T, createV800MCInstrInfo);
   TargetRegistry::RegisterMCRegInfo(T, createV800MCRegisterInfo);
   TargetRegistry::RegisterMCSubtargetInfo(T, createV800MCSubtargetInfo);
+  TargetRegistry::RegisterMCInstPrinter(T, createV800MCInstPrinter);
+  TargetRegistry::RegisterMCCodeEmitter(T, createV800MCCodeEmitter);
 }

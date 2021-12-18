@@ -1,6 +1,8 @@
 add_llvm_component_library(LLVMV800Desc
   V800MCTargetDesc.cpp
+  V800InstPrinter.cpp
   V800MCAsmInfo.cpp
+  V800MCCodeEmitter.cpp
 
   LINK_COMPONENTS
   MC
