@@ -30,4 +30,7 @@ class MCStreamer;
 class MCTargetStreamer;
 } // End llvm namespace
 
+#define GET_SUBTARGETINFO_ENUM
+#include "V800GenSubtargetInfo.inc"
+
 #endif

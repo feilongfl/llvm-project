@@ -20,6 +20,9 @@
 
 using namespace llvm;
 
+#define GET_SUBTARGETINFO_MC_DESC
+#include "V800GenSubtargetInfo.inc"
+
 static MCInstrInfo *createV800MCInstrInfo() {
   MCInstrInfo *X = new MCInstrInfo();
   return X;
@@ -32,27 +35,7 @@ static MCRegisterInfo *createV800MCRegisterInfo(const Triple &TT) {
 
 static MCSubtargetInfo *
 createV800MCSubtargetInfo(const Triple &TT, StringRef CPU, StringRef FS) {
-  const llvm::MCSchedModel NoSchedModel = {};
-
-  const llvm::SubtargetSubTypeKV PD[] = {
-    { "temp_subtype", { { { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } }, { { { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } }, &NoSchedModel },
-  };
-
-  llvm::SubtargetFeatureKV PF[] = {
-    { "temp_feature", "feature placehold", 0x0ULL, { { { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } } },
-  };
-
-  const llvm::MCWriteProcResEntry WriteProcResTable[] = {{}};
-  const llvm::MCWriteLatencyEntry WriteLatencyTable[] = {{}};
-  const llvm::MCReadAdvanceEntry ReadAdvanceTable[] = {{}};
-
-  MCSubtargetInfo *X = new MCSubtargetInfo(TT, CPU, CPU, FS,
-                  PF, PD,
-                  WriteProcResTable, WriteLatencyTable,
-                  ReadAdvanceTable, nullptr,
-                  nullptr, nullptr );
-
-  return X;
+  return createV800MCSubtargetInfoImpl(TT, CPU, CPU, FS);
 }
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeV800TargetMC() {
