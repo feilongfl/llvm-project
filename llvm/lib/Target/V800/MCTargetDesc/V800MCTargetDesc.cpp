@@ -62,4 +62,5 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeV800TargetMC() {
   TargetRegistry::RegisterMCSubtargetInfo(T, createV800MCSubtargetInfo);
   TargetRegistry::RegisterMCInstPrinter(T, createV800MCInstPrinter);
   TargetRegistry::RegisterMCCodeEmitter(T, createV800MCCodeEmitter);
+  TargetRegistry::RegisterMCAsmBackend(T, createV800MCAsmBackend);
 }

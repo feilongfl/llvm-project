@@ -33,6 +33,13 @@ class MCTargetStreamer;
 MCCodeEmitter *createV800MCCodeEmitter(const MCInstrInfo &MCII,
                                          const MCRegisterInfo &MRI,
                                          MCContext &Ctx);
+
+MCAsmBackend *createV800MCAsmBackend(const Target &T,
+                                       const MCSubtargetInfo &STI,
+                                       const MCRegisterInfo &MRI,
+                                       const MCTargetOptions &Options);
+
+std::unique_ptr<MCObjectTargetWriter> createV800ELFObjectWriter(uint8_t OSABI);
 } // End llvm namespace
 
 #define GET_REGINFO_ENUM
