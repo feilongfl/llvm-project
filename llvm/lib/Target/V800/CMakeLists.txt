@@ -10,6 +10,7 @@ add_public_tablegen_target(V800CommonTableGen)
 
 add_llvm_target(V800CodeGen
   V800TargetMachine.cpp
+  V800AsmPrinter.cpp
 
   LINK_COMPONENTS
   AsmPrinter
