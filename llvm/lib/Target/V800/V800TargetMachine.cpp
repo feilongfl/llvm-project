@@ -53,3 +53,27 @@ V800TargetMachine::V800TargetMachine(const Target &T, const Triple &TT,
 }
 
 V800TargetMachine::~V800TargetMachine() {}
+
+
+namespace {
+/// V800 Code Generator Pass Configuration Options.
+class V800PassConfig : public TargetPassConfig {
+public:
+  V800PassConfig(V800TargetMachine &TM, PassManagerBase &PM)
+    : TargetPassConfig(TM, PM) {}
+
+  V800TargetMachine &getV800TargetMachine() const {
+    return getTM<V800TargetMachine>();
+  }
+
+  bool addInstSelector() override;
+};
+} // namespace
+
+TargetPassConfig *V800TargetMachine::createPassConfig(PassManagerBase &PM) {
+  return new V800PassConfig(*this, PM);
+}
+
+bool V800PassConfig::addInstSelector() {
+  return false;
+}

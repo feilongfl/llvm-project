@@ -32,6 +32,11 @@ public:
                       CodeGenOpt::Level OL, bool JIT);
   ~V800TargetMachine() override;
 
+  TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
+
+  TargetLoweringObjectFile *getObjFileLowering() const override {
+    return TLOF.get();
+  }
 }; // V800TargetMachine.
 
 } // end namespace llvm
